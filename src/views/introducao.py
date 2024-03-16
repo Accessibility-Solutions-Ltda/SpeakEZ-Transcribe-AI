@@ -1,11 +1,10 @@
 from PyQt6.QtWidgets import QMainWindow, QLabel
 from PyQt6.QtGui import QIcon
 
-class SpeakezTranscribeAI(QMainWindow):
+class Introducao(QMainWindow):
     def __init__(self):
         super().__init__()
 
         #Teste
-        label = QLabel('SpeakezTranscribeAI')
+        label = QLabel('Introducao')
         self.setCentralWidget(label)
-        
