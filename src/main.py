@@ -5,6 +5,7 @@ from views.menu import Menu
 from views.speakez_transcribe_ai import SpeakezTranscribeAI
 from views.historico import Historico
 from views.settings import Settings
+from services.config_service import ConfigService
 import ctypes
 
 class Main(QMainWindow):
@@ -14,8 +15,6 @@ class Main(QMainWindow):
 
     def __init__(self):
         super().__init__()
-
-        # Resto do código...
 class Main(QMainWindow):
     """
     Classe principal que representa a janela principal do aplicativo SpeakEZ Transcribe AI.
@@ -28,7 +27,23 @@ class Main(QMainWindow):
     """
 
     def __init__(self):
+        """
+        Inicializa a classe principal do aplicativo SpeakEZ Transcribe AI.
+
+        Este método é executado quando uma instância da classe é criada.
+        Ele configura a janela principal do aplicativo, define o título, ícone e tamanho da janela,
+        cria o menu e o layout, e exibe a janela.
+
+        Parâmetros:
+            Nenhum.
+
+        Retorno:
+            Nenhum.
+        """
         super().__init__()
+
+        # Verificando as configurações
+        self.verificando_configuracoes()
 
         #Titulo do aplicativo
         self.setWindowTitle('SpeakEZ Transcribe AI')
@@ -106,9 +121,35 @@ class Main(QMainWindow):
         central_widget = QWidget()
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
-        
+    
+    def verificando_configuracoes(self):
+        """
+        Método que verifica as configurações do aplicativo.
+
+        Parâmetros:
+        Nenhum.
+
+        Retorna:
+        Nenhum retorno.
+        """
+        # Chamando o serviço de configuração
+        config_service = ConfigService()
+
+        # Verificando se arquivo de configuração existe
+        config_service.verificando_arquivo_configuracao()
 
 def main():
+    """
+    Função principal que inicializa a aplicação SpeakEZ Transcribe AI.
+
+    A função altera o ícone do aplicativo no Windows e cria a janela principal da aplicação.
+
+    Parâmetros:
+    Nenhum.
+
+    Retorno:
+    Nenhum.
+    """
     # Altere icone do aplicativo no Windows
     speakez_id = 'AcessibilitySolutions.SpeakezTranscribeAI.0.1'
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(speakez_id)

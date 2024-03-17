@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QWidget, QLabel, QHBoxLayout, QSizePolicy
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt, pyqtSignal, QSize
-from PyQt6.QtWidgets import QVBoxLayout, QWidget, QLabel, QHBoxLayout, QPushButton, QSizePolicy
 import qtawesome as qta
 
 # Defina constantes para os nomes das páginas
