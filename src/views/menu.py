@@ -4,6 +4,11 @@ from PyQt6.QtCore import Qt, pyqtSignal, QSize
 from PyQt6.QtWidgets import QVBoxLayout, QWidget, QLabel, QHBoxLayout, QPushButton, QSizePolicy
 import qtawesome as qta
 
+# Defina constantes para os nomes das páginas
+SPEAKEZ_PAGE = 'speakez_transcribe_ai'
+HISTORY_PAGE = 'history'
+SETTINGS_PAGE = 'settings'
+
 class HoverButton(QPushButton):
     def __init__(self, *args, type_icon, **kwargs):
         super().__init__(*args, **kwargs)
@@ -21,9 +26,26 @@ class HoverButton(QPushButton):
         self.setIcon(self.default_icon)
 
 class Menu(QWidget):
+    """
+    Classe que representa o menu da aplicação.
+
+    O menu contém uma imagem, um título e botões para navegação.
+
+    Atributos:
+    - change_page_signal (pyqtSignal): Sinal emitido quando um botão é clicado para mudar de página.
+
+    Métodos:
+    - __init__(): Construtor da classe Menu.
+    - cria_botao(texto, page, icon_type): Cria um botão para a navegação no menu.
+    """
     change_page_signal = pyqtSignal(str)
+    
     def __init__(self):
-        
+        """
+        Construtor da classe Menu.
+
+        Inicializa o menu com uma cor de fundo, uma imagem, um título e botões de navegação.
+        """
         super().__init__()
 
         # Define a cor de fundo do menu
@@ -52,7 +74,7 @@ class Menu(QWidget):
         # Carrega a imagem
         pixmap = QPixmap('src/assets/icons/icon_ez-256x256.png')
 
-        #Ajustando o tamanho da imagem
+        # Ajustando o tamanho da imagem
         pixmap = pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
 
         # Define o pixmap do QLabel para a imagem
@@ -76,36 +98,22 @@ class Menu(QWidget):
         titulo_menu = QLabel('Menu')
         titulo_menu.setStyleSheet("border-style: none; padding: 10; text-align: left; font-size: 30px; font-weight: bold; font-style: italic;")
         layout.addWidget(titulo_menu, alignment=Qt.AlignmentFlag.AlignTop)
-
-        CSS_STYLE = "QPushButton { border: none; border-style: none; padding: 10; text-align: left; font-size: 18px; border-radius: 10px;}"\
-                "QPushButton:hover { background-color: #4d608c; color: white; font-weight: bold;}"
         
-        #Cria um novo QWidgets para os botões
+        # Cria um novo QWidgets para os botões
         button_widget = QWidget()
         button_widget.setStyleSheet(color_background)
 
         # Cria um layout vertical para o widget dos botões
         button_layout = QVBoxLayout(button_widget)
 
-
-
         # Adiciona botões ao layout
-        button_home = HoverButton('Página Inicial', type_icon='fa5s.home')
-        button_home.setCursor(Qt.CursorShape.PointingHandCursor)  # Define o cursor para a mãozinha
-        button_home.setStyleSheet(CSS_STYLE)  # Define a cor de fundo quando o cursor passa acima
-        button_home.clicked.connect(lambda: self.change_page_signal.emit('speakez_transcribe_ai')) #Envia o sinal clicked para emitir o sinal de mudança de página
+        button_home = self.cria_botao('Página Inicial', SPEAKEZ_PAGE, 'fa5s.home')
         button_layout.addWidget(button_home, alignment=Qt.AlignmentFlag.AlignTop)
 
-        button_history = HoverButton('Histórico', type_icon='fa5s.history')
-        button_history.setCursor(Qt.CursorShape.PointingHandCursor)  # Define o cursor para a mãozinha
-        button_history.setStyleSheet(CSS_STYLE)  # Define a cor de fundo quando o cursor passa acima
-        button_history.clicked.connect(lambda: self.change_page_signal.emit('history')) #Envia o sinal clicked para emitir o sinal de mudança de página
+        button_history = self.cria_botao('Histórico', HISTORY_PAGE, 'fa5s.history')
         button_layout.addWidget(button_history, alignment=Qt.AlignmentFlag.AlignTop)
 
-        button_settings = HoverButton('Configurações', type_icon='fa5s.cog')
-        button_settings.setCursor(Qt.CursorShape.PointingHandCursor)  # Define o cursor para a mãozinha
-        button_settings.setStyleSheet(CSS_STYLE)  # Define a cor de fundo quando o cursor passa acima
-        button_settings.clicked.connect(lambda: self.change_page_signal.emit('settings'))
+        button_settings = self.cria_botao('Configurações', SETTINGS_PAGE, 'fa5s.cog')
         button_layout.addWidget(button_settings, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adiciona o layout dos botões ao widget
@@ -119,3 +127,26 @@ class Menu(QWidget):
 
         # Define o layout do widget
         self.setLayout(layout)
+    
+    def cria_botao(self, texto, page, icon_type):
+        """
+        Cria um botão para a navegação no menu.
+
+        Parâmetros:
+        - texto (str): Texto exibido no botão.
+        - page (str): Página para a qual o botão irá navegar.
+        - icon_type (str): Tipo de ícone a ser exibido no botão.
+
+        Retorna:
+        - button (HoverButton): Botão de navegação criado.
+        """
+        button = HoverButton(texto, type_icon=icon_type)
+        button.setCursor(Qt.CursorShape.PointingHandCursor)
+        css_style = "QPushButton { border: none; border-style: none; padding: 10; text-align: left; font-size: 18px; border-radius: 10px;}"\
+                "QPushButton:hover { background-color: #4d608c; color: white; font-weight: bold;}"
+        button.setStyleSheet(css_style)
+
+        # Conecta o sinal clicked do botão ao método mudar_pagina
+        # Muda a página para a página especificada
+        button.clicked.connect(lambda: self.change_page_signal.emit(page))
+        return button

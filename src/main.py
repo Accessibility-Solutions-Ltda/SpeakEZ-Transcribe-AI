@@ -6,11 +6,27 @@ from views.speakez_transcribe_ai import SpeakezTranscribeAI
 from views.historico import Historico
 from views.settings import Settings
 import ctypes
-from views.speakez_transcribe_ai import SpeakezTranscribeAI
-from views.historico import Historico
-from views.settings import Settings
 
 class Main(QMainWindow):
+    """
+    Classe principal que representa a janela principal do aplicativo SpeakEZ Transcribe AI.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+        # Resto do código...
+class Main(QMainWindow):
+    """
+    Classe principal que representa a janela principal do aplicativo SpeakEZ Transcribe AI.
+
+    Atributos:
+    - menu: instância da classe Menu que representa o menu do aplicativo.
+    - speakez_transcribe_ai: instância da classe Introducao que representa a página de introdução do aplicativo.
+    - historico: instância da classe Historico que representa a página de histórico do aplicativo.
+    - settings: instância da classe Settings que representa a página de configurações do aplicativo.
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -51,6 +67,16 @@ class Main(QMainWindow):
         self.show()
     
     def mudando_pagina(self, page):
+        """
+        Método que é chamado quando ocorre uma mudança de página no aplicativo.
+
+        Parâmetros:
+        - page: string que representa a página para a qual o aplicativo está mudando.
+
+        Retorna:
+        Nenhum valor de retorno.
+        """
+
         # Cria um novo layout
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -67,9 +93,7 @@ class Main(QMainWindow):
             # Cria o novo widget Historico
             self.historico = Historico()
 
-            # Ajustando margens
-            layout.setContentsMargins(0, 0, 0, 0)
-
+            # Cria um novo layout
             layout.addWidget(self.historico)
         
         elif page == "settings":
