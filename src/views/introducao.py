@@ -1,5 +1,4 @@
 from PyQt6.QtWidgets import QMainWindow, QLabel
-from PyQt6.QtGui import QIcon
 
 class Introducao(QMainWindow):
     def __init__(self):
@@ -7,4 +6,5 @@ class Introducao(QMainWindow):
 
         #Teste
         label = QLabel('Introducao')
+        label.setStyleSheet('font-size: 20px')
         self.setCentralWidget(label)

@@ -1,11 +1,8 @@
-from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QPushButton, QWidget, QApplication, QLabel, QHBoxLayout, QSizePolicy
-from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QVBoxLayout, QWidget, QLabel, QHBoxLayout, QPushButton
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QWidget, QLabel, QHBoxLayout, QSizePolicy
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtCore import Qt, pyqtSignal, QSize
+from PyQt6.QtWidgets import QVBoxLayout, QWidget, QLabel, QHBoxLayout, QPushButton, QSizePolicy
 import qtawesome as qta
-
-from PyQt6.QtWidgets import QSpacerItem, QSizePolicy
 
 class HoverButton(QPushButton):
     def __init__(self, *args, type_icon, **kwargs):
@@ -13,6 +10,7 @@ class HoverButton(QPushButton):
         self.default_icon = qta.icon(type_icon, color='black')
         self.hover_icon = qta.icon(type_icon, color='white')
         self.setIcon(self.default_icon)
+        self.setIconSize(QSize(18, 18))
 
     def enterEvent(self, event):
         super().enterEvent(event)
@@ -23,6 +21,7 @@ class HoverButton(QPushButton):
         self.setIcon(self.default_icon)
 
 class Menu(QWidget):
+    change_page_signal = pyqtSignal(str)
     def __init__(self):
         
         super().__init__()
@@ -94,17 +93,19 @@ class Menu(QWidget):
         button_home = HoverButton('Página Inicial', type_icon='fa5s.home')
         button_home.setCursor(Qt.CursorShape.PointingHandCursor)  # Define o cursor para a mãozinha
         button_home.setStyleSheet(CSS_STYLE)  # Define a cor de fundo quando o cursor passa acima
-        
+        button_home.clicked.connect(lambda: self.change_page_signal.emit('speakez_transcribe_ai')) #Envia o sinal clicked para emitir o sinal de mudança de página
         button_layout.addWidget(button_home, alignment=Qt.AlignmentFlag.AlignTop)
 
         button_history = HoverButton('Histórico', type_icon='fa5s.history')
         button_history.setCursor(Qt.CursorShape.PointingHandCursor)  # Define o cursor para a mãozinha
         button_history.setStyleSheet(CSS_STYLE)  # Define a cor de fundo quando o cursor passa acima
+        button_history.clicked.connect(lambda: self.change_page_signal.emit('history')) #Envia o sinal clicked para emitir o sinal de mudança de página
         button_layout.addWidget(button_history, alignment=Qt.AlignmentFlag.AlignTop)
 
         button_settings = HoverButton('Configurações', type_icon='fa5s.cog')
         button_settings.setCursor(Qt.CursorShape.PointingHandCursor)  # Define o cursor para a mãozinha
         button_settings.setStyleSheet(CSS_STYLE)  # Define a cor de fundo quando o cursor passa acima
+        button_settings.clicked.connect(lambda: self.change_page_signal.emit('settings'))
         button_layout.addWidget(button_settings, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adiciona o layout dos botões ao widget
