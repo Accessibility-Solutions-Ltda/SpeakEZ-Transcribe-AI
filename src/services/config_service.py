@@ -4,8 +4,8 @@ import pyaudio
 PATH_CONFIG = 'src\config\config.toml'
 class ConfigService:
     def __init__(self):
-        # This method is intentionally left empty.
-        pass
+        # Registrando drivers de áudio existentes
+        self.audio = pyaudio.PyAudio()
 
     def verificando_arquivo_configuracao(self):
         """
@@ -31,6 +31,7 @@ class ConfigService:
         self.registrando_drivers_audio()
 
 
+
     def registrando_drivers_audio(self):
         """
         Registra os drivers de áudio existentes.
@@ -41,8 +42,6 @@ class ConfigService:
         Returns:
             None
         """
-        # Registrando drivers de áudio existentes
-        audio = pyaudio.PyAudio()
 
         # Carrega o arquivo de configuração existente
         config = toml.load(open(PATH_CONFIG, 'r', encoding='iso-8859-1'))
@@ -53,20 +52,42 @@ class ConfigService:
         # Cria uma nova seção para os drivers de áudio
         config['drivers_audio'] = {}
 
-        for i in range(audio.get_device_count()):
-            device_info = audio.get_device_info_by_index(i)
+        for i in range(self.audio.get_device_count()):
+            device_info = self.audio.get_device_info_by_index(i)
             if device_info['maxInputChannels'] > 0:
                 # Salvando drivers de microfone em arquivo de configuração
-                config['drivers_microphone'][f"microphone_id_{i}"] = device_info['name']
+                config['drivers_microphone'][f"{i}"] = device_info['name']
             elif device_info['maxOutputChannels'] > 0:
                 # Salvando drivers de áudio em arquivo de configuração
-                config['drivers_audio'][f"speaker_id_{i}"] = device_info['name']
+                config['drivers_audio'][f"{i}"] = device_info['name']
 
         # Salva o arquivo de configuração
         with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as file:
             toml.dump(config, file)
 
-        audio.terminate()
+        self.audio.terminate()
+    
+    def definir_default_drivers(self):
+        """
+        Define os drivers de áudio e microfone padrão do sistema operacional.
+
+        Este método define os drivers de áudio e microfone padrão do sistema operacional e os salva em um arquivo de configuração.
+
+        Returns:
+            None
+        """
+        # Carrega o arquivo de configuração existente
+        config = toml.load(open(PATH_CONFIG, 'r', encoding='iso-8859-1'))
+
+        # Verifica se os drivers padrão já estão definidos
+        if 'selected_drivers_audio' not in config:
+            config['selected_drivers_audio'] = self.audio.get_default_input_device_info()['index']
+        if 'selected_drivers_microphone' not in config:
+            config['selected_drivers_microphone'] = self.audio.get_default_output_device_info()['index']
+
+        # Salva o arquivo de configuração
+        with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as file:
+            toml.dump(config, file)
 
     def lendo_configuracoes(self):
         """
