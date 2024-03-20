@@ -1,7 +1,8 @@
 import toml
 import pyaudio
+import os
 
-PATH_CONFIG = 'src\config\config.toml'
+PATH_CONFIG = 'src/config/config.toml'
 class ConfigService:
     def __init__(self):
         # Registrando drivers de áudio existentes
@@ -24,6 +25,7 @@ class ConfigService:
                 print('Arquivo de configuração encontrado.')
         except FileNotFoundError:
             # Criando arquivo de configuração
+            os.makedirs('src/config/')
             with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as _:
                 print('Arquivo de configuração criado.')
         
