@@ -25,7 +25,8 @@ class ConfigService:
                 print('Arquivo de configuração encontrado.')
         except FileNotFoundError:
             # Criando arquivo de configuração
-            os.makedirs('src/config/')
+            if not os.path.exists('src/config/')
+                os.makedirs('src/config/')
             with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as _:
                 print('Arquivo de configuração criado.')
         
