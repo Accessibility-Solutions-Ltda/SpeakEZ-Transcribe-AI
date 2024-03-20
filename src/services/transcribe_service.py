@@ -51,19 +51,17 @@ class TranscribeService(QObject):
             # Definindo o arquivo de saída
             output_file = WAVE_OUTPUT_FILENAME1
 
-            # Inicializando a captura de áudio
-            i = 0
-            processamento = 0
-
             # Inicializando a lista de frames
             frames = []
+
+            # Lendo o arquivo de configuração
+            config = self.config_service.lendo_configuracoes()
+            openai.api_key = config['openai_api_key']
+            client = openai.Client(api_key=openai.api_key)
             
             try:
-                while i <5:
                 # Repetindo a captura de áudio enquanto a função running() retornar True
-                #while running():
-                    tempo_todo_processamento_start = timeit.default_timer()
-
+                while running():
                     # Selecionando o driver de áudio
                     stream = p.open(format=FORMAT,
                                     channels=CHANNELS,
@@ -78,7 +76,7 @@ class TranscribeService(QObject):
                         frames.append(data)
 
                     # Enviando o arquivo de áudio para a API da OpenAI
-                    threading.Thread(target=self.envia_para_openai, args=(output_file, CHANNELS, FORMAT, RATE, frames, p)).start()
+                    threading.Thread(target=self.envia_para_openai, args=(output_file, CHANNELS, FORMAT, RATE, frames, p, client)).start()
 
                     # Parando a captura de áudio
                     stream.stop_stream()
@@ -89,14 +87,7 @@ class TranscribeService(QObject):
                         output_file = WAVE_OUTPUT_FILENAME2
                     else:
                         output_file = WAVE_OUTPUT_FILENAME1
-                    
                     frames = []
-                    tempo_todo_processamento_stop = timeit.default_timer()
-                    processamento += tempo_todo_processamento_stop - tempo_todo_processamento_start
-                    print(f"Tempo total do método: {tempo_todo_processamento_stop - tempo_todo_processamento_start}")
-                    i += 1
-                # Média de tempo de processamento
-                print(f"Média de tempo de processamento: {processamento / 5}")
 
             # Lidando com exceções   
             except Exception as e:
@@ -107,7 +98,7 @@ class TranscribeService(QObject):
                 stream.close()
                 p.terminate()
     
-    def envia_para_openai(self, filename, CHANNELS, FORMAT, RATE, frames, p):
+    def envia_para_openai(self, filename, channels, format, rate, frames, p, client):
         """
         Envia um arquivo de áudio para a API da OpenAI para transcrição.
 
@@ -120,32 +111,22 @@ class TranscribeService(QObject):
         Lança:
         Nenhum erro é lançado explicitamente.
 
-        """
-        tempo_todo_metodo_start = timeit.default_timer()
-        
+        """        
         # Salvando o arquivo de áudio
         wf = wave.open(filename, 'wb')
-        wf.setnchannels(CHANNELS)
-        wf.setsampwidth(p.get_sample_size(FORMAT))
-        wf.setframerate(RATE)
+        wf.setnchannels(channels)
+        wf.setsampwidth(p.get_sample_size(format))
+        wf.setframerate(rate)
         wf.writeframes(b''.join(frames))
-        wf.close()
-
-        # Lendo o arquivo de configuração
-        config = self.config_service.lendo_configuracoes()
-        openai.api_key = config['openai_api_key']
 
         # Enviando o arquivo de áudio para a API da OpenAI
         audio_file = open(filename, "rb")
-        client = openai.Client(api_key=openai.api_key)
         transcription = client.audio.transcriptions.create(
             model="whisper-1", 
             file=audio_file)
-        tempo_todo_metodo_stop = timeit.default_timer()
-
-        print(f"Tempo de envio para OpenAI: {tempo_todo_metodo_stop - tempo_todo_metodo_start}")
         # Enviando a transcrição para o sinal de transcrição
-        self.envia_transcricao(transcription.text)
+        threading.Thread(target=self.envia_transcricao, args=(transcription.text,)).start()
+        wf.close()
 
 
     def envia_transcricao(self, transcription):
