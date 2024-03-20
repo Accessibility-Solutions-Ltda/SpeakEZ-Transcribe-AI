@@ -4,6 +4,7 @@ from services.config_service import ConfigService
 import openai
 import threading
 from PyQt6.QtCore import pyqtSignal, QObject
+import timeit
 
 
 class TranscribeService(QObject):
@@ -23,6 +24,7 @@ class TranscribeService(QObject):
             self.transcribe = False
 
     def captando_audio_streaming(self, running):
+            tempo_todo_metodo_start = timeit.default_timer()
             """
             Função responsável por capturar áudio em streaming.
 
@@ -78,7 +80,7 @@ class TranscribeService(QObject):
                     # Parando a captura de áudio
                     stream.stop_stream()
                     stream.close()
-
+                    tempo_salvando_arquivo_start = timeit.default_timer()
                     # Salvando o arquivo de áudio
                     wf = wave.open(output_file, 'wb')
                     wf.setnchannels(CHANNELS)
@@ -86,6 +88,8 @@ class TranscribeService(QObject):
                     wf.setframerate(RATE)
                     wf.writeframes(b''.join(frames))
                     wf.close()
+                    tempo_salvando_arquivo_stop = timeit.default_timer()
+
 
                     # Enviando o arquivo de áudio para a API da OpenAI
                     threading.Thread(target=self.envia_para_openai, args=(output_file,)).start()
@@ -95,6 +99,9 @@ class TranscribeService(QObject):
                         output_file = WAVE_OUTPUT_FILENAME2
                     else:
                         output_file = WAVE_OUTPUT_FILENAME1
+                    tempo_todo_metodo_stop = timeit.default_timer()
+                    print(f"Tempo de salvamento do arquivo: {tempo_salvando_arquivo_stop - tempo_salvando_arquivo_start}")
+                    print(f"Tempo total do método: {tempo_todo_metodo_stop - tempo_todo_metodo_start}")
 
             # Lidando com exceções   
             except Exception as e:
@@ -117,9 +124,10 @@ class TranscribeService(QObject):
         Nenhum erro é lançado explicitamente.
 
         """
-
         #Debugando
         print(f"Enviando {filename} para OpenAI...")
+
+        tempo_todo_metodo_start = timeit.default_timer()
 
         # Lendo o arquivo de configuração
         config = self.config_service.lendo_configuracoes()
@@ -131,9 +139,11 @@ class TranscribeService(QObject):
         transcription = client.audio.transcriptions.create(
             model="whisper-1", 
             file=audio_file)
-        
+        tempo_todo_metodo_stop = timeit.default_timer()
+        print(f"Tempo de envio para OpenAI: {tempo_todo_metodo_stop - tempo_todo_metodo_start}")
         # Enviando a transcrição para o sinal de transcrição
         self.envia_transcricao(transcription.text)
+
 
     def envia_transcricao(self, transcription):
             """
