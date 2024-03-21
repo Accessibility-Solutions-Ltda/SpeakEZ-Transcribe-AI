@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QHBoxLayout
+from PyQt6.QtWidgets import QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QHBoxLayout, QLineEdit
 from PyQt6.QtCore import Qt
 from services.config_service import ConfigService
 
@@ -76,6 +76,18 @@ class Settings(QMainWindow):
         self.combobox_audio =  self.cria_combobox('drivers_audio')
         layout_combobox.addWidget(self.combobox_audio, alignment=Qt.AlignmentFlag.AlignTop)
         layout.addLayout(layout_combobox)
+
+        # Cria um bloco de texto para inserir o token da OpenAI
+        layout_token = QHBoxLayout()
+        layout_token.setContentsMargins(20, 0, 10, 10)
+        titulo_token = QLabel('Token da OpenAI:')
+        titulo_token.setStyleSheet('font-size: 15px; padding: 0px 5px 0px 0px;')
+        layout_token.addWidget(titulo_token, alignment=Qt.AlignmentFlag.AlignTop)
+        self.token = QLineEdit()
+        self.token.textChanged.connect(lambda: self.config_service.salvando_configuracoes({'openai_token': self.token.text()}))
+        self.token.setStyleSheet('font-size: 15px')
+        layout_token.addWidget(self.token, alignment=Qt.AlignmentFlag.AlignTop)
+        layout.addLayout(layout_token)
 
 
         # Cria um widget central e define o layout

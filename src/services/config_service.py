@@ -24,12 +24,18 @@ class ConfigService:
             with open(PATH_CONFIG, 'r', encoding='iso-8859-1') as _:
                 print('Arquivo de configuração encontrado.')
         except FileNotFoundError:
-            # Criando arquivo de configuração
-            if not os.path.exists('src/config/')
+            # Verificando se o diretório de configuração existe
+            if not os.path.exists('src/config/'):
+                # Criando diretório de configuração
                 os.makedirs('src/config/')
+            # Criando arquivo de configuração
             with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as _:
                 print('Arquivo de configuração criado.')
-        
+            # Criando seção config['openai_api_key']
+            config = toml.load(open(PATH_CONFIG, 'r', encoding='iso-8859-1'))
+            config['openai_api_key'] = ''
+            with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as file:
+                toml.dump(config, file)
         # Registrando drivers de áudio existentes
         self.registrando_drivers_audio()
 
