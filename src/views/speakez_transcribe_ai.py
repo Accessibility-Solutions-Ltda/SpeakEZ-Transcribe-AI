@@ -100,7 +100,7 @@ class SpeakezTranscribeAI(QMainWindow):
 
         # Titulo de conversão
         self.transcription_titulo = QLabel('Convertendo em áudio')
-        self.transcription_titulo.setStyleSheet(font_20px)
+        self.transcription_titulo.setStyleSheet(font_20px + "; margin-top: 20px; margin-bottom: 5px;")
         layout_label.addWidget(self.transcription_titulo)
 
         #Criando layout horizontal para a conversão de texto em áudio
@@ -115,13 +115,11 @@ class SpeakezTranscribeAI(QMainWindow):
         border-radius: 5px;
         text-align: center;
         background-color: #f0f0f0;
+        margin-bottom: 10px;
     }
-
     QProgressBar::chunk {
-        background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0 #f0f0f0, stop:1 #4d608c); 
-    }
-""")
-        self.conversion_progress.setFixedHeight(10)
+        background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0 #f0f0f0, stop:1 #4d608c);}""")
+        self.conversion_progress.setFixedHeight(20)
         self.conversion_progress.setRange(0,0)
         layout_label.addWidget(self.conversion_progress)
 
