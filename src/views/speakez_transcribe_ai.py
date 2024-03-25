@@ -1,7 +1,8 @@
 # speakez_transcribe_ai.py
-from PyQt6.QtWidgets import QMainWindow, QLabel, QPushButton, QVBoxLayout, QTextEdit, QWidget, QHBoxLayout, QSizePolicy
-from PyQt6.QtCore import QThread
+from PyQt6.QtWidgets import QMainWindow, QLabel, QPushButton, QVBoxLayout, QTextEdit, QWidget, QHBoxLayout, QSizePolicy, QProgressBar
+from PyQt6.QtCore import QThread, QSize
 from services.transcribe_service import TranscribeService
+import qtawesome as qta
 
 class AudioGravadorStream(QThread):
     """
@@ -47,27 +48,33 @@ class SpeakezTranscribeAI(QMainWindow):
         central_widget = QWidget()
         layout = QVBoxLayout(central_widget)
 
+        layout_label = QVBoxLayout()
+        layout_label.setContentsMargins(10, 10, 10, 10)
+
         # Adiciona um título à janela
         label = QLabel('SpeakezTranscribeAI')
+        
 
         # Define o estilo do título
-        label.setStyleSheet(font_20px)
+        label.setStyleSheet("font-size: 30px; font-weight: bold; color: #4d608c; margin-top: 20px; margin-bottom: 20px;")
 
         # Adiciona o título ao layout
         layout.addWidget(label)
+
 
         # Adiciona um layout horizontal para o botão de ligar/desligar
         layout_transcription = QHBoxLayout()
 
         # Criando texto de transcrição
-        self.transcription_titulo = QLabel('Transcrição:')
+        self.transcription_titulo = QLabel('Transcrição')
         self.transcription_titulo.setStyleSheet(font_20px)
         layout_transcription.addWidget(self.transcription_titulo)
 
         # Adiciona um botão de ligar/desligar
-        self.switch_button = QPushButton('OFF')
+        self.switch_button = QPushButton('Desligado')
         self.switch_button.setCheckable(True)
-        self.switch_button.setStyleSheet('background-color: red; padding: 10px;' + font_20px)
+        self.switch_button.setStyleSheet('background-color: white; padding: 10px; border: 2px solid #4d608c; border-radius: 10px; ' + font_20px)
+        self.switch_button.setFixedWidth(125)
 
         # Define a política de tamanho do botão
         self.switch_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
@@ -80,16 +87,80 @@ class SpeakezTranscribeAI(QMainWindow):
 
 
         # Adiciona o layout horizontal ao layout principal
-        layout.addLayout(layout_transcription)
+        layout_label.addLayout(layout_transcription)
 
         # Adiciona um campo de texto
         self.transcription_box = QTextEdit()
         self.transcription_box.setReadOnly(True)
-        self.transcription_box.setStyleSheet(font_20px)
-        layout.addWidget(self.transcription_box)
+        self.transcription_box.setStyleSheet(font_20px + "; border: 2px solid #4d608c; border-radius: 10px; background-color: palette(base);")
+        layout_label.addWidget(self.transcription_box)
 
         # Define o widget central
         self.setCentralWidget(central_widget)
+
+        # Titulo de conversão
+        self.transcription_titulo = QLabel('Convertendo em áudio')
+        self.transcription_titulo.setStyleSheet(font_20px)
+        layout_label.addWidget(self.transcription_titulo)
+
+        #Criando layout horizontal para a conversão de texto em áudio
+        layout_conversion = QHBoxLayout()
+
+
+        # Adicionando uma barra de progresso
+        self.conversion_progress = QProgressBar()
+        self.conversion_progress.setStyleSheet("""
+    QProgressBar {
+        border: 1px solid #4d608c;                              
+        border-radius: 5px;
+        text-align: center;
+        background-color: #f0f0f0;
+    }
+
+    QProgressBar::chunk {
+        background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0.5, y2:0, stop:0 #f0f0f0, stop:1 #4d608c); 
+    }
+""")
+        self.conversion_progress.setFixedHeight(10)
+        self.conversion_progress.setRange(0,0)
+        layout_label.addWidget(self.conversion_progress)
+
+        # Adicionando um campo de texto como entrada
+        self.conversion_text = QTextEdit()
+        self.conversion_text.setPlaceholderText('Digite o texto aqui...')
+        self.conversion_text.setStyleSheet(font_20px + "; border: 2px solid #4d608c; border-radius: 10px; background-color: palette(base);")
+        layout_conversion.addWidget(self.conversion_text)
+
+        #Criando layout vertical para os botões
+        layout_buttons = QVBoxLayout()
+
+        # Adicionando um botão para corrigir texto
+        icon_magic = qta.icon('fa5s.magic', color='white')
+        self.correct_button = QPushButton('Corrigir')
+        self.correct_button.setIcon(icon_magic)
+        self.correct_button.setIconSize(QSize(18, 18))
+        self.correct_button.setStyleSheet('background-color: #4d608c; color: white; padding: 10px; border: none; border-style: none;border-radius: 10px;' + font_20px)
+        self.correct_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
+        self.correct_button.setFixedWidth(125)  # Definindo uma largura fixa
+        layout_buttons.addWidget(self.correct_button)
+
+        # Adicionando um botão para converter texto em áudio
+
+        # Adicionando um iconé ao botão
+        icon_play = qta.icon('fa5s.play', color='white')
+        self.convert_button = QPushButton(icon_play, 'Converter')
+        self.convert_button.setIcon(icon_play)
+        self.convert_button.setIconSize(QSize(18, 18))
+        self.convert_button.setStyleSheet('background-color: #4d608c; color: white; padding: 10px; border: none; border-style: none;border-radius: 10px;' + font_20px)
+        self.convert_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
+        self.convert_button.setFixedWidth(125)  # Definindo uma largura fixa
+        layout_buttons.addWidget(self.convert_button)
+
+        layout_conversion.addLayout(layout_buttons)
+        layout_label.addLayout(layout_conversion)
+
+        # Adiciona o layout ao layout principal
+        layout.addLayout(layout_label)
 
     def on_switch_button_clicked(self):
         """
@@ -100,17 +171,17 @@ class SpeakezTranscribeAI(QMainWindow):
         Se o botão estiver desmarcado, altera o texto para 'OFF', define o estilo do botão como vermelho e para a gravação de áudio.
         """
         if self.switch_button.isChecked():
-            self.switch_button.setText('ON')
-            self.switch_button.setStyleSheet('background-color: green; font-size: 30px; padding: 10px')
+            self.switch_button.setText('Ligado')
+            self.switch_button.setStyleSheet('background-color: #4d608c; font-size: 20px; padding: 10px; border: 2px solid white; border-radius: 10px; color: white;')
 
             # Inicia a gravação de áudio
-            self.audio_gravador_stream.start()
+            #self.audio_gravador_stream.start()
         else:
-            self.switch_button.setText('OFF')
-            self.switch_button.setStyleSheet('background-color: red; font-size: 30px; padding: 10px')
+            self.switch_button.setText('Desligado')
+            self.switch_button.setStyleSheet('background-color: white; padding: 10px; border: 2px solid #4d608c; border-radius: 10px; font-size: 20px')
 
             # Para a gravação de áudio
-            self.audio_gravador_stream.stop()
+            #self.audio_gravador_stream.stop()
 
     def receber_transcricao(self, transcription):
         """
