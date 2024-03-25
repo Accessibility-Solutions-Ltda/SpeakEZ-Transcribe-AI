@@ -108,17 +108,26 @@ class ConfigService:
         config = toml.load(open(PATH_CONFIG, 'r', encoding='iso-8859-1'))
         return config
     
-    def salvando_configuracoes(self, config):
+    def salvando_configuracoes(self, new_config):
         """
-        Salva as configurações em um arquivo.
+        Atualiza e salva as configurações em um arquivo.
 
         Args:
-            config (dict): Um dicionário contendo as configurações a serem salvas.
+            new_config (dict): Um dicionário contendo as configurações a serem atualizadas.
 
         Returns:
-            dict: As configurações salvas.
+            dict: As configurações atualizadas.
 
         """
+        # Carrega as configurações existentes
+        with open(PATH_CONFIG, 'r', encoding='iso-8859-1') as file:
+            config = toml.load(file)
+
+        # Atualiza as configurações
+        config.update(new_config)
+
+        # Salva as configurações atualizadas
         with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as file:
             toml.dump(config, file)
+
         return config

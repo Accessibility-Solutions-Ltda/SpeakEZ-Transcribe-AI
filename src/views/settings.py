@@ -79,13 +79,31 @@ class Settings(QMainWindow):
 
         # Cria um bloco de texto para inserir o token da OpenAI
         layout_token = QHBoxLayout()
+
+        # Ajusta as margens do bloco de texto
         layout_token.setContentsMargins(20, 0, 10, 10)
+
+        # Adiciona um título ao bloco de texto
         titulo_token = QLabel('Token da OpenAI:')
+
+        # Ajusta o estilo do título
         titulo_token.setStyleSheet('font-size: 15px; padding: 0px 5px 0px 0px;')
+
+        # Adiciona o título ao layout
         layout_token.addWidget(titulo_token, alignment=Qt.AlignmentFlag.AlignTop)
+
+        # Cria um bloco de texto para inserir o token da OpenAI
         self.token = QLineEdit()
-        self.token.textChanged.connect(lambda: self.config_service.salvando_configuracoes({'openai_token': self.token.text()}))
+
+        # Expor o token se ele existir
+        if 'openai_api_key' in self.config:
+            self.token.setText(self.config['openai_api_key'])
+        
+        # Salvar o token da OpenAI
+        self.token.textChanged.connect(lambda: self.config_service.salvando_configuracoes({'openai_api_key': self.token.text()}))
         self.token.setStyleSheet('font-size: 15px')
+
+        # Adiciona o bloco de texto ao layout
         layout_token.addWidget(self.token, alignment=Qt.AlignmentFlag.AlignTop)
         layout.addLayout(layout_token)
 
