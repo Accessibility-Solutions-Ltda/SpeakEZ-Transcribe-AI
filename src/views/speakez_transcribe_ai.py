@@ -1,6 +1,6 @@
 # speakez_transcribe_ai.py
 from PyQt6.QtWidgets import QMainWindow, QLabel, QPushButton, QVBoxLayout, QTextEdit, QWidget, QHBoxLayout, QSizePolicy, QProgressBar, QStackedWidget
-from PyQt6.QtCore import QThread, QSize
+from PyQt6.QtCore import QThread, QSize, Qt
 from services.transcribe_service import TranscribeService
 import qtawesome as qta
 
@@ -57,9 +57,9 @@ class SpeakezTranscribeAI(QMainWindow):
         self.setCentralWidget(central_widget)
 
         # Adiciona um título à janela
-        label = QLabel('SpeakEZTranscribeAI')
+        label = QLabel('Página Inicial')
         # Define o estilo do título
-        label.setStyleSheet("font-size: 30px; font-weight: bold; color: {}; margin-top: 20px; margin-bottom: 20px;".format(COLOR_PRIMARY))
+        label.setStyleSheet("font-size: 40px; font-weight: bold; font: Segoe UI; color: {}; margin-top: 20px; margin-bottom: 20px;".format('black'))
         # Adiciona o título ao layout
         layout.addWidget(label)
 
@@ -88,6 +88,7 @@ class SpeakezTranscribeAI(QMainWindow):
         # Adiciona um botão de ligar/desligar
         self.switch_button = QPushButton('Desligado')
         self.switch_button.setCheckable(True)
+        self.switch_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; {};'.format(COLOR_SECONDARY, COLOR_PRIMARY, FONT_SIZE))
         self.switch_button.setFixedWidth(125)
 
@@ -175,6 +176,7 @@ class SpeakezTranscribeAI(QMainWindow):
     def criando_botoes_conversion(self, text, icon_name, color, fixed_width=125):
         icon = qta.icon(icon_name, color=color)
         button = QPushButton(icon, text)
+        button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.setIcon(icon)
         button.setIconSize(QSize(18, 18))
         button.setStyleSheet('background-color: {}; color: {}; padding: 10px; border: none; border-style: none;border-radius: 10px;{}'.format(COLOR_PRIMARY, COLOR_TERTIARY, FONT_SIZE))

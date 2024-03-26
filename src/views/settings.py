@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QHBoxLayout, QLineEdit
+from PyQt6.QtWidgets import QTabWidget, QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QHBoxLayout, QLineEdit
 from PyQt6.QtCore import Qt
 from services.config_service import ConfigService
 
@@ -36,16 +36,22 @@ class Settings(QMainWindow):
         layout = QVBoxLayout()
         
         # Ajustando margens
-        layout.setContentsMargins(15, 15, 15, 15)
+        layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(0)
 
         # Adicionado titulo
         titulo = QLabel('Configurações')
-        titulo.setStyleSheet('font-size: 20px; padding: 10px;')
+        titulo.setStyleSheet('font-size: 40px; font-weight: bold; font: segoe ui; margin-top: 20px; margin-bottom: 20px;')
         layout.addWidget(titulo, alignment=Qt.AlignmentFlag.AlignTop)
 
         #Lendo drivers de áudio disponíveis
         self.lendo_drivers_audio()
+
+        bloco = QTabWidget()
+        #bloco.insertTab(label='Dispositivos')
+        #bloco.insertTab(label='Token')
+        layout.addWidget(bloco)
+      
 
         #Criando QHoxLayout para os ComboBox
         layout_combobox = QHBoxLayout()

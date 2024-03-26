@@ -49,7 +49,7 @@ class Main(QMainWindow):
         self.setWindowTitle('SpeakEZ Transcribe AI')
 
         #Icone do aplicativo
-        self.setWindowIcon(QIcon('src/assets/icons/icon_ez-256x256.png'))
+        self.setWindowIcon(QIcon('assets\icons\icon_ez-256x256.png'))
 
         #Menu
         self.menu = Menu()
