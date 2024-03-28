@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QWidget
+from PyQt6.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QWidget, QSpacerItem
 from PyQt6.QtGui import QIcon
 from views.introducao import Introducao
 from views.menu import Menu
@@ -8,13 +8,6 @@ from views.settings import Settings
 from services.config_service import ConfigService
 import ctypes
 
-class Main(QMainWindow):
-    """
-    Classe principal que representa a janela principal do aplicativo SpeakEZ Transcribe AI.
-    """
-
-    def __init__(self):
-        super().__init__()
 class Main(QMainWindow):
     """
     Classe principal que representa a janela principal do aplicativo SpeakEZ Transcribe AI.

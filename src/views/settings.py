@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QTabWidget, QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QHBoxLayout, QLineEdit
+from PyQt6.QtWidgets import QTabWidget, QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QHBoxLayout, QLineEdit, QSpacerItem
 from PyQt6.QtCore import Qt
 from services.config_service import ConfigService
 
@@ -47,47 +47,64 @@ class Settings(QMainWindow):
         #Lendo drivers de áudio disponíveis
         self.lendo_drivers_audio()
 
+        #Criando TabViewer para configurações
         bloco = QTabWidget()
-        #bloco.insertTab(label='Dispositivos')
-        #bloco.insertTab(label='Token')
+        fonte_tab = bloco.font()
+        fonte_tab.setFamily("Segoe UI")
+        fonte_tab.setPointSize(14)
+        bloco.setFont(fonte_tab)
+        tab_audio = QWidget()
+        tab_token = QWidget()
+        bloco.addTab(tab_audio, "Áudio")
+        bloco.addTab(tab_token,"Token")
         layout.addWidget(bloco)
-      
 
-        #Criando QHoxLayout para os ComboBox
-        layout_combobox = QHBoxLayout()
+        #Criando QVBoxLayout para a aba de áudio
+        vlayoutaudio = QWidget(parent=tab_audio)      
+        layout_audio = QVBoxLayout(vlayoutaudio)
+        layout_audio.setContentsMargins(10,10,0,0)
+
+       #Criando QVBoxLayout para a aba de token
+        vlayoutToken = QWidget(parent=tab_token)      
+        layout_token = QVBoxLayout(vlayoutToken)
+        layout_token.setContentsMargins(10,10,0,0)
+
+        #Criando QHBoxLayout para os ComboBox
+        """layout_combobox = QHBoxLayout()
         layout_combobox.setSpacing(15)
         layout_combobox.setContentsMargins(20, 0, 10, 10)
+        layout_audio.addLayout(layout_combobox)"""
 
         # Titulo do microfone
         titulo_microfone = QLabel('Dispositivo de entrada - Microfone')
         titulo_microfone.setStyleSheet('font-size: 15px')
-        layout_combobox.addWidget(titulo_microfone, alignment=Qt.AlignmentFlag.AlignTop)
+        layout_audio.addWidget(titulo_microfone, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adicionado ComboBox
         self.combobox_microphone =  self.cria_combobox('drivers_microphone')
-        layout_combobox.addWidget(self.combobox_microphone, alignment=Qt.AlignmentFlag.AlignTop)
-        layout.addLayout(layout_combobox)
+        layout_audio.addWidget(self.combobox_microphone, alignment=Qt.AlignmentFlag.AlignTop)
+        #layout.addLayout(layout_combobox)
 
         #Criando QHoxLayout para os ComboBox
-        layout_combobox = QHBoxLayout()
+        """layout_combobox = QHBoxLayout()
         layout_combobox.setSpacing(15)
-        layout_combobox.setContentsMargins(20, 0, 10, 10)
+        layout_combobox.setContentsMargins(20, 0, 10, 10)"""
 
         # Titulo do audio
         titulo_audio = QLabel('Dispositivo de saída - Audio')
         titulo_audio.setStyleSheet('font-size: 15px')
-        layout_combobox.addWidget(titulo_audio, alignment=Qt.AlignmentFlag.AlignTop)
+        layout_audio.addWidget(titulo_audio, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adicionado ComboBox
         self.combobox_audio =  self.cria_combobox('drivers_audio')
-        layout_combobox.addWidget(self.combobox_audio, alignment=Qt.AlignmentFlag.AlignTop)
-        layout.addLayout(layout_combobox)
+        layout_audio.addWidget(self.combobox_audio, alignment=Qt.AlignmentFlag.AlignTop)
+        #layout.addLayout(layout_combobox)
 
         # Cria um bloco de texto para inserir o token da OpenAI
-        layout_token = QHBoxLayout()
+        #layout_token = QHBoxLayout()
 
         # Ajusta as margens do bloco de texto
-        layout_token.setContentsMargins(20, 0, 10, 10)
+        #layout_token.setContentsMargins(20, 0, 10, 10)
 
         # Adiciona um título ao bloco de texto
         titulo_token = QLabel('Token da OpenAI:')
