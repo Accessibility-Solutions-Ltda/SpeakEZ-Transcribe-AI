@@ -39,6 +39,15 @@ class ConfigService:
         # Registrando drivers de áudio existentes
         self.registrando_drivers_audio()
 
+        #Criando csv de palavra chave
+        try:
+            with open('src/config/palavra_chave.csv', 'r') as _:
+                print('Arquivo de palavra chave encontrado.')
+        except FileNotFoundError:
+            with open('src/config/palavra_chave.csv', 'w') as file:
+                file.write('termo_original,termo_substituto\n')
+                print('Arquivo de palavra chave criado.')
+
 
 
     def registrando_drivers_audio(self):

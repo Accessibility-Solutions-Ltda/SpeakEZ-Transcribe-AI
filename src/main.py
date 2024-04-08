@@ -69,9 +69,6 @@ class Main(QMainWindow):
         #Ajustando margens
         layout.setContentsMargins(0, 0, 0, 0)
 
-        #Tamanho da janela
-        self.setGeometry(100, 100, 800, 600)
-
         # Tamanho mínimo da janela
         self.setMinimumSize(1024, 768)
 

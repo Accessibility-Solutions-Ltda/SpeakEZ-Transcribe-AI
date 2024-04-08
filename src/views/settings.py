@@ -1,6 +1,7 @@
-from PyQt6.QtWidgets import QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QHBoxLayout, QLineEdit
+from PyQt6.QtWidgets import QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QHBoxLayout, QLineEdit, QPushButton
 from PyQt6.QtCore import Qt
 from services.config_service import ConfigService
+from views.palavra_chave import PalavraChave
 
 class Settings(QMainWindow):
     """
@@ -107,6 +108,18 @@ class Settings(QMainWindow):
         layout_token.addWidget(self.token, alignment=Qt.AlignmentFlag.AlignTop)
         layout.addLayout(layout_token)
 
+        # Titulo de configurações de palavra-chave
+        titulo_palavra_chave = QLabel('Configurações de palavra-chave')
+        titulo_palavra_chave.setStyleSheet('font-size: 15px')
+        layout.addWidget(titulo_palavra_chave, alignment=Qt.AlignmentFlag.AlignTop)
+
+        # Abrir uma janela de palavra-chave
+        abrir_janela_palavra_chave = QPushButton('Abrir janela de palavra-chave')
+        abrir_janela_palavra_chave.clicked.connect(lambda: self.abrir_janela_palavra_chave())
+        layout.addWidget(abrir_janela_palavra_chave, alignment=Qt.AlignmentFlag.AlignTop)
+
+
+
 
         # Cria um widget central e define o layout
         central_widget = QWidget()
@@ -117,6 +130,17 @@ class Settings(QMainWindow):
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         layout.addWidget(spacer)
+    
+    def abrir_janela_palavra_chave(self):
+        """
+        Abre a janela de configurações de palavra-chave.
+
+        Retorna:
+        Nenhum valor de retorno.
+        """
+        #Abrir uma janela de pyqt
+        self.janela_palavra_chave = PalavraChave()
+        self.janela_palavra_chave.show()
 
     
     def lendo_drivers_audio(self):

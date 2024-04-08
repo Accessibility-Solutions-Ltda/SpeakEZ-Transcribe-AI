@@ -1,4 +1,3 @@
-# speakez_transcribe_ai.py
 from PyQt6.QtWidgets import QMainWindow, QLabel, QPushButton, QVBoxLayout, QTextEdit, QWidget, QHBoxLayout, QSizePolicy, QProgressBar, QStackedWidget
 from PyQt6.QtCore import QThread, QSize
 from services.transcribe_service import TranscribeService

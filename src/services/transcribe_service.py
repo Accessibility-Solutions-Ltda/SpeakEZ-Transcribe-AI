@@ -76,7 +76,7 @@ class TranscribeService(QObject):
                         frames.append(data)
 
                     # Enviando o arquivo de áudio para a API da OpenAI
-                    threading.Thread(target=self.envia_para_openai, args=(output_file, CHANNELS, FORMAT, RATE, frames, p, client)).start()
+                    threading.Thread(target=self.envia_audio_para_openai, args=(output_file, CHANNELS, FORMAT, RATE, frames, p, client)).start()
 
                     # Parando a captura de áudio
                     stream.stop_stream()
@@ -98,7 +98,7 @@ class TranscribeService(QObject):
                 stream.close()
                 p.terminate()
     
-    def envia_para_openai(self, filename, channels, format, rate, frames, p, client):
+    def envia_audio_para_openai(self, filename, channels, format, rate, frames, p, client):
         """
         Envia um arquivo de áudio para a API da OpenAI para transcrição.
 
@@ -127,6 +127,8 @@ class TranscribeService(QObject):
         # Enviando a transcrição para o sinal de transcrição
         threading.Thread(target=self.envia_transcricao, args=(transcription.text,)).start()
         wf.close()
+    
+    #def envia_texto_para_openai(self, texto):
 
 
     def envia_transcricao(self, transcription):
@@ -139,6 +141,7 @@ class TranscribeService(QObject):
             Returns:
                 None
             """
+
             self.transcripton_signal.emit(transcription)
 
     def lendo_driver_select(self):
