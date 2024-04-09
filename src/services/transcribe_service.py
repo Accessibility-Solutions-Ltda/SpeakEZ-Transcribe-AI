@@ -134,7 +134,7 @@ class TranscribeService(QObject):
 
         #print(texto)
 
-        system_prompt = "Esta é transcrição, por favor corrige o texto. Remove uma palavra se não fizer sentido ou adiciona uma palavra se fizer sentido pelo contexto."
+        system_prompt = "Corrige o texto e remove uma palavra se não fizer sentido ou adiciona uma palavra se fizer sentido pelo contexto."
         temperature = 0
 
         response = client.chat.completions.create(
