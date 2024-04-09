@@ -8,20 +8,21 @@ import timeit
 
 
 class TranscribeService(QObject):
-    transcripton_signal = pyqtSignal(str)
-    class TranscribeService:
-        def __init__(self):
-            """
-            Inicializa uma nova instância da classe TranscribeService.
+    transcripton_signal = pyqtSignal(str, bool, str)
+    def __init__(self):
+        """
+        Inicializa uma nova instância da classe TranscribeService.
 
-            Atributos:
-            - transcribe (bool): Indica se a transcrição está ativada ou desativada.
-            - config_service (ConfigService): Instância do serviço de configuração.
-            - driver_select_audio: Resultado da função lendo_driver_select().
+        Atributos:
+        - transcribe (bool): Indica se a transcrição está ativada ou desativada.
+        - config_service (ConfigService): Instância do serviço de configuração.
+        - driver_select_audio: Resultado da função lendo_driver_select().
 
-            """
-            super().__init__()
-            self.transcribe = False
+        """
+        super().__init__()
+        self.transcribe = False
+        self.contador_transcricao = 0
+        self.transcricao_original = ""
 
     def captando_audio_streaming(self, running):
             """
@@ -91,9 +92,10 @@ class TranscribeService(QObject):
 
             # Lidando com exceções   
             except Exception as e:
-                print(f"Erro: {e}")
+                #print(f"Erro: {e}")
+                pass
             finally:
-                print("Gravação de áudio é interrompida.")
+                #print("Gravação de áudio é interrompida.")
                 stream.stop_stream()
                 stream.close()
                 p.terminate()
@@ -125,24 +127,56 @@ class TranscribeService(QObject):
             model="whisper-1", 
             file=audio_file)
         # Enviando a transcrição para o sinal de transcrição
-        threading.Thread(target=self.envia_transcricao, args=(transcription.text,)).start()
+        threading.Thread(target=self.envia_transcricao, args=(transcription.text, filename, client)).start()
         wf.close()
     
-    #def envia_texto_para_openai(self, texto):
+    def envia_openai_corrigir(self, texto, audio_file, client):
 
+        #print(texto)
 
-    def envia_transcricao(self, transcription):
-            """
-            Envia a transcrição para o sinal de transcrição.
+        system_prompt = "Esta é transcrição, por favor corrige o texto. Remove uma palavra se não fizer sentido ou adiciona uma palavra se fizer sentido pelo contexto."
+        temperature = 0
 
-            Args:
-                transcription (str): A transcrição a ser enviada.
+        response = client.chat.completions.create(
+            model="gpt-4-0125-preview",
+            temperature=temperature,
+            messages=[
+                {
+                    "role": "system",
+                    "content": system_prompt
+                },
+                {
+                    "role": "user",
+                    "content": texto
+                }
+            ]
+        )
+        return response.choices[0].message.content
 
-            Returns:
-                None
-            """
+    def envia_transcricao(self, transcription, filename, client):
+        """
+        Envia a transcrição para o sinal de transcrição.
+    
+        Args:
+            transcription (str): A transcrição a ser enviada.
+    
+        Returns:
+            None
+        """
+        transcription = transcription.replace("...", " ")
+        self.transcricao_original += transcription
+        is_corrigido = False
 
-            self.transcripton_signal.emit(transcription)
+        if self.contador_transcricao == 5:
+            self.transcripton_signal.emit(transcription, is_corrigido, self.transcricao_original)
+            transcription = self.envia_openai_corrigir(self.transcricao_original, filename, client)
+            is_corrigido = True
+            self.contador_transcricao = 0
+    
+        self.transcripton_signal.emit(transcription, is_corrigido, self.transcricao_original if is_corrigido else "")
+        
+        self.contador_transcricao += 1
+        print(self.contador_transcricao)
 
     def lendo_driver_select(self):
             """

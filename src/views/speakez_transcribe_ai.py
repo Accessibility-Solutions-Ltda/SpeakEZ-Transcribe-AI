@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QMainWindow, QLabel, QPushButton, QVBoxLayout, QText
 from PyQt6.QtCore import QThread, QSize, Qt
 from services.transcribe_service import TranscribeService
 import qtawesome as qta
+import re
 
 FONT_SIZE = 'font-size: 20px'
 COLOR_PRIMARY = '#4d608c'
@@ -196,15 +197,15 @@ class SpeakezTranscribeAI(QMainWindow):
             self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; color: {}; {}'.format(COLOR_PRIMARY, COLOR_TERTIARY, COLOR_TERTIARY, FONT_SIZE))
 
             # Inicia a gravação de áudio
-            #self.audio_gravador_stream.start()
+            self.audio_gravador_stream.start()
         else:
             self.switch_button.setText('Desligado')
             self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; {}'.format(COLOR_SECONDARY, COLOR_PRIMARY, FONT_SIZE))
 
             # Para a gravação de áudio
-            #self.audio_gravador_stream.stop()
+            self.audio_gravador_stream.stop()
 
-    def receber_transcricao(self, transcription):
+    def receber_transcricao(self, transcription, is_corrigido, texto_a_remover):
         """
         Adiciona a transcrição recebida à caixa de transcrição existente.
 
@@ -214,5 +215,17 @@ class SpeakezTranscribeAI(QMainWindow):
         Returns:
             None
         """
-        texto_atual = self.transcription_box.toPlainText()
-        self.transcription_box.setPlainText(f"{texto_atual}\n{transcription}")
+
+        if is_corrigido:
+            texto_atual = self.transcription_box.toHtml()
+            texto_atual = self.remover_html(texto_atual)
+            texto_atualizado = texto_atual.replace(texto_a_remover, transcription)
+            self.transcription_box.setHtml(f'<span style="color:black;">{texto_atualizado}</span>')
+        elif not is_corrigido:
+            self.transcription_box.append(f'<span style="color:#7d7d7d;">{transcription}</span>')
+            
+
+    def remover_html(self,texto_atual):
+        texto_atual = re.sub('<[^>]*>|p,\s*li\s*{[^}]*}|hr\s*{[^}]*}|li\.unchecked::marker\s*{[^}]*}|li\.checked::marker\s*{[^}]*}', '', texto_atual)
+        return texto_atual
+

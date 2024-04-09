@@ -22,7 +22,8 @@ class ConfigService:
         # Verificando se arquivo de configuração existe
         try:
             with open(PATH_CONFIG, 'r', encoding='iso-8859-1') as _:
-                print('Arquivo de configuração encontrado.')
+                #print('Arquivo de configuração encontrado.')
+                pass
         except FileNotFoundError:
             # Verificando se o diretório de configuração existe
             if not os.path.exists('src/config/'):
@@ -30,7 +31,8 @@ class ConfigService:
                 os.makedirs('src/config/')
             # Criando arquivo de configuração
             with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as _:
-                print('Arquivo de configuração criado.')
+                #print('Arquivo de configuração criado.')
+                pass
             # Criando seção config['openai_api_key']
             config = toml.load(open(PATH_CONFIG, 'r', encoding='iso-8859-1'))
             config['openai_api_key'] = ''
@@ -42,11 +44,13 @@ class ConfigService:
         #Criando csv de palavra chave
         try:
             with open('src/config/palavra_chave.csv', 'r') as _:
-                print('Arquivo de palavra chave encontrado.')
+                #print('Arquivo de palavra chave encontrado.')
+                pass
         except FileNotFoundError:
             with open('src/config/palavra_chave.csv', 'w') as file:
                 file.write('termo_original,termo_substituto\n')
-                print('Arquivo de palavra chave criado.')
+                #print('Arquivo de palavra chave criado.')
+                pass
 
 
 
