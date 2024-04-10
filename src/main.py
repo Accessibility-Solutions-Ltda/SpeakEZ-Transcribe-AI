@@ -42,12 +42,12 @@ class Main(QMainWindow):
         self.setWindowTitle('SpeakEZ Transcribe AI')
 
         #Icone do aplicativo
-        self.setWindowIcon(QIcon('src/assets/icons/icon_ez-256x256.png'))
+        self.setWindowIcon(QIcon('assets/icons/icon_ez-256x256.png'))
 
         #Menu
         self.menu = Menu()
         self.menu.change_page_signal.connect(self.mudando_pagina)
-        self.speakez_transcribe_ai = Introducao()
+        self.speakez_transcribe_ai = SpeakezTranscribeAI()
 
         #Layout
         layout = QHBoxLayout()
