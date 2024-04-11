@@ -47,7 +47,7 @@ class Main(QMainWindow):
         #Menu
         self.menu = Menu()
         self.menu.change_page_signal.connect(self.mudando_pagina)
-        self.speakez_transcribe_ai = SpeakezTranscribeAI()
+        self.speakez_transcribe_ai = Introducao()
 
         #Layout
         layout = QHBoxLayout()

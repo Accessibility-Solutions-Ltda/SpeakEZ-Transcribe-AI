@@ -59,13 +59,15 @@ class Menu(QWidget):
         layout.setSpacing(0)
 
         # Cria um widget para a imagem
-        image_widget = QWidget()
+        #image_widget = QWidget()
 
         # Cria um QHBoxLayout para o widget da imagem
-        h_layout = QHBoxLayout(image_widget)
+        #h_layout = QHBoxLayout(image_widget)
+        h_layout = QHBoxLayout()
+        layout.addLayout(h_layout)
 
         # Adiciona um espaçador no início do layout
-        h_layout.addStretch()
+        #h_layout.addStretch()
 
         # Cria um QLabel para a imagem
         image_label = QLabel()
@@ -79,19 +81,30 @@ class Menu(QWidget):
         # Define o pixmap do QLabel para a imagem
         image_label.setPixmap(pixmap)
 
-        image_label.setStyleSheet("padding: 100")
+        image_label.setStyleSheet("padding: 10")
 
         # Adiciona o QLabel ao layout
         h_layout.addWidget(image_label, alignment=Qt.AlignmentFlag.AlignLeft) 
 
         # Adiciona outro espaçador no final do layout
-        h_layout.addStretch()
+        #h_layout.addStretch()
 
         # Define o layout do widget
-        image_widget.setLayout(h_layout)
+        #image_widget.setLayout(h_layout)
+
+        # Botão de ajuda
+        icon = qta.icon('fa5s.question', color='black')
+        help_btn = QPushButton(icon, 'ajuda')
+        help_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        help_btn.setIcon(icon)
+        help_btn.setIconSize(QSize(24, 24))
+        help_btn.setStyleSheet("background-color: #B4CBD9; margin-right: 10px")
+        #help_btn.clicked.connect(lambda: self.abrir_janela_palavra_chave())
+        h_layout.addWidget(help_btn, alignment=Qt.AlignmentFlag.AlignRight)
 
         # Adiciona o widget ao layout principal
-        layout.addWidget(image_widget, alignment=Qt.AlignmentFlag.AlignTop)
+        #layout.addWidget(image_widget, alignment=Qt.AlignmentFlag.AlignTop)
+        #layout.addWidget(help_btn, alignment=Qt.AlignmentFlag.AlignRight)
 
         # Titulo de menu
         titulo_menu = QLabel('Menu')
