@@ -42,7 +42,7 @@ class Main(QMainWindow):
         self.setWindowTitle('SpeakEZ Transcribe AI')
 
         #Icone do aplicativo
-        self.setWindowIcon(QIcon('assets/icons/icon_ez-256x256.png'))
+        self.setWindowIcon(QIcon(r'src\assets\icons\256x256.png'))
 
         #Menu
         self.menu = Menu()
@@ -107,6 +107,12 @@ class Main(QMainWindow):
 
             # Cria um novo layout
             layout.addWidget(self.settings)
+        elif page == "introducao":
+            # Cria o novo widget Introducao
+            self.introducao = Introducao()
+
+            # Cria um novo layout
+            layout.addWidget(self.introducao)
 
         central_widget = QWidget()
         central_widget.setLayout(layout)

@@ -53,22 +53,22 @@ class Settings(QMainWindow):
         bloco = QTabWidget()
         fonte_tab = bloco.font()
         fonte_tab.setFamily("Segoe UI")
-        fonte_tab.setPointSize(18)
+        fonte_tab.setPointSize(14)
         bloco.setFont(fonte_tab)
         tab_audio = QWidget()
         tab_token = QWidget()
-        bloco.addTab(tab_audio, "Áudio")
-        bloco.addTab(tab_token,"Token")
+        bloco.addTab(tab_audio, "Gerenciamento de áudio")
+        bloco.addTab(tab_token,"OpenAI")
         layout.addWidget(bloco)
 
         #Criando QVBoxLayout para a aba de áudio
-        vlayoutaudio = QWidget(parent=tab_audio)      
-        layout_audio = QVBoxLayout(vlayoutaudio)
+        layout_audio_tab = QWidget(parent=tab_audio)      
+        layout_audio = QVBoxLayout(layout_audio_tab)
         layout_audio.setContentsMargins(10,10,0,0)
 
        #Criando QVBoxLayout para a aba de token
-        vlayouttoken = QWidget(parent=tab_token)      
-        layout_token = QVBoxLayout(vlayouttoken)
+        layout_openai_tab = QWidget(parent=tab_token)      
+        layout_token = QVBoxLayout(layout_openai_tab)
         layout_token.setContentsMargins(10,10,0,0)
 
         # Titulo do microfone
@@ -100,7 +100,7 @@ class Settings(QMainWindow):
         titulo_token = QLabel('Token da OpenAI:')
 
         # Ajusta o estilo do título
-        titulo_token.setStyleSheet('font-size: 20px; padding: 0px 5px 0px 0px;')
+        titulo_token.setStyleSheet('font-size: 18px;')
 
         # Adiciona o título ao layout
         layout_token.addWidget(titulo_token, alignment=Qt.AlignmentFlag.AlignTop)

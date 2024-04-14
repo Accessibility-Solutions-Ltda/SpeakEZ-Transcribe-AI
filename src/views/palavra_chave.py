@@ -16,13 +16,12 @@ class PalavraChave(QMainWindow):
 
         # Cria uma tabela com duas colunas
         self.tabela = QTableWidget()
-        self.tabela.setColumnCount(2)
-        self.tabela.setHorizontalHeaderLabels(['Termo Original', 'Termo Substituto'])
+        self.tabela.setColumnCount(1)
+        self.tabela.setHorizontalHeaderLabels(['Termos'])
 
         # Duas colunas no tamanho ajustado na toda tela
         self.tabela.horizontalHeader().setStretchLastSection(True)
         self.tabela.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
-        self.tabela.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
 
         # Permite a edição dos itens da tabela
         self.tabela.setEditTriggers(QTableWidget.EditTrigger.DoubleClicked)
@@ -44,7 +43,6 @@ class PalavraChave(QMainWindow):
         row_count = self.tabela.rowCount()
         self.tabela.setRowCount(row_count + 1)
         self.tabela.setItem(row_count, 0, QTableWidgetItem(''))
-        self.tabela.setItem(row_count, 1, QTableWidgetItem(''))
 
 
     def abrir_janela_palavra_chave(self):
@@ -70,14 +68,13 @@ class PalavraChave(QMainWindow):
         """
         filename = 'src/config/palavra_chave.csv'
         with open(filename, mode='w', newline='') as csvfile:
-            fieldnames = ['termo_original', 'termo_substituto']
+            fieldnames = ['termos']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             writer.writeheader()
             for i in range(self.tabela.rowCount()):
                 termo_original = self.tabela.item(i, 0).text()
-                termo_substituto = self.tabela.item(i, 1).text()
-                writer.writerow({'termo_original': termo_original, 'termo_substituto': termo_substituto})
+                writer.writerow({'termos': termo_original})
     
     def lendo_tabela(self):
         """
@@ -106,8 +103,7 @@ class PalavraChave(QMainWindow):
         """
         self.tabela.setRowCount(len(data))
         for i, row in enumerate(data):
-            self.tabela.setItem(i, 0, QTableWidgetItem(row['termo_original']))
-            self.tabela.setItem(i, 1, QTableWidgetItem(row['termo_substituto']))
+            self.tabela.setItem(i, 0, QTableWidgetItem(row['termos']))
 
 
 

@@ -167,3 +167,4 @@ src/views/__pycache__/
 config.toml
 output1.wav
 output2.wav
+src/config/palavra_chave.csv

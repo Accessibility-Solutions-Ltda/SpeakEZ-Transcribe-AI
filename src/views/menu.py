@@ -7,6 +7,7 @@ import qtawesome as qta
 SPEAKEZ_PAGE = 'speakez_transcribe_ai'
 HISTORY_PAGE = 'history'
 SETTINGS_PAGE = 'settings'
+INTRODUCAO_PAGE = 'introducao'
 
 class HoverButton(QPushButton):
     def __init__(self, *args, type_icon, **kwargs):
@@ -59,21 +60,20 @@ class Menu(QWidget):
         layout.setSpacing(0)
 
         # Cria um widget para a imagem
-        #image_widget = QWidget()
+        image_widget = QWidget()
 
         # Cria um QHBoxLayout para o widget da imagem
-        #h_layout = QHBoxLayout(image_widget)
-        h_layout = QHBoxLayout()
+        h_layout = QHBoxLayout(image_widget)
         layout.addLayout(h_layout)
 
         # Adiciona um espaçador no início do layout
-        #h_layout.addStretch()
+        h_layout.addStretch()
 
         # Cria um QLabel para a imagem
         image_label = QLabel()
 
         # Carrega a imagem
-        pixmap = QPixmap('assets\icons\icon_ez-256x256.png')
+        pixmap = QPixmap(r'src\assets\icons\256x256.png')
 
         # Ajustando o tamanho da imagem
         pixmap = pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
@@ -81,30 +81,19 @@ class Menu(QWidget):
         # Define o pixmap do QLabel para a imagem
         image_label.setPixmap(pixmap)
 
-        image_label.setStyleSheet("padding: 10")
+        image_label.setStyleSheet("padding: 100")
 
         # Adiciona o QLabel ao layout
         h_layout.addWidget(image_label, alignment=Qt.AlignmentFlag.AlignLeft) 
 
         # Adiciona outro espaçador no final do layout
-        #h_layout.addStretch()
+        h_layout.addStretch()
 
         # Define o layout do widget
-        #image_widget.setLayout(h_layout)
-
-        # Botão de ajuda
-        icon = qta.icon('fa5s.question', color='black')
-        help_btn = QPushButton(icon, 'ajuda')
-        help_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        help_btn.setIcon(icon)
-        help_btn.setIconSize(QSize(24, 24))
-        help_btn.setStyleSheet("background-color: #B4CBD9; margin-right: 10px")
-        #help_btn.clicked.connect(lambda: self.abrir_janela_palavra_chave())
-        h_layout.addWidget(help_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        image_widget.setLayout(h_layout)
 
         # Adiciona o widget ao layout principal
-        #layout.addWidget(image_widget, alignment=Qt.AlignmentFlag.AlignTop)
-        #layout.addWidget(help_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(image_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Titulo de menu
         titulo_menu = QLabel('Menu')
@@ -127,6 +116,9 @@ class Menu(QWidget):
 
         button_settings = self.cria_botao('Configurações', SETTINGS_PAGE, 'fa5s.cog')
         button_layout.addWidget(button_settings, alignment=Qt.AlignmentFlag.AlignTop)
+
+        button_help = self.cria_botao('Ajuda', INTRODUCAO_PAGE, 'fa5s.question')
+        button_layout.addWidget(button_help, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adiciona o layout dos botões ao widget
         layout.addWidget(button_widget, alignment=Qt.AlignmentFlag.AlignTop)
