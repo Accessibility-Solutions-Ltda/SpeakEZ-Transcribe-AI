@@ -1,5 +1,6 @@
 import toml
 import pyaudio
+import soundcard as sc
 import os
 
 PATH_CONFIG = 'src/config/config.toml'
@@ -79,9 +80,9 @@ class ConfigService:
             if device_info['maxInputChannels'] > 0:
                 # Salvando drivers de microfone em arquivo de configuração
                 config['drivers_microphone'][f"{i}"] = device_info['name']
-            elif device_info['maxOutputChannels'] > 0:
-                # Salvando drivers de áudio em arquivo de configuração
-                config['drivers_audio'][f"{i}"] = device_info['name']
+            speakers = sc.all_speakers()
+        for speaker in speakers:
+            config['drivers_audio'][f"{speaker.id}"] = f"{speaker.name}"
 
         # Salva o arquivo de configuração
         with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as file:
@@ -103,7 +104,7 @@ class ConfigService:
 
         # Verifica se os drivers padrão já estão definidos
         if 'selected_drivers_audio' not in config:
-            config['selected_drivers_audio'] = self.audio.get_default_input_device_info()['index']
+            config['selected_drivers_audio'] = sc.default_speaker().index
         if 'selected_drivers_microphone' not in config:
             config['selected_drivers_microphone'] = self.audio.get_default_output_device_info()['index']
 

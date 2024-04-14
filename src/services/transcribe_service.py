@@ -1,10 +1,12 @@
 import pyaudio
+import soundcard as sc
 import wave
 from services.config_service import ConfigService
 import openai
 import threading
 from PyQt6.QtCore import pyqtSignal, QObject
 import timeit
+import numpy as np
 
 
 class TranscribeService(QObject):
@@ -23,84 +25,68 @@ class TranscribeService(QObject):
         self.transcribe = False
         self.contador_transcricao = 0
         self.transcricao_original = ""
+        self.config_service = ConfigService()
+        self.config = self.config_service.lendo_configuracoes()
+        select_audio = self.config['selected_drivers_audio']
+        speakers = sc.all_speakers()
+        self.select_audio = next((m for m in speakers if m.id == select_audio), None)
 
     def captando_audio_streaming(self, running):
-            """
-            Função responsável por capturar áudio em streaming.
+        """
+        Função responsável por capturar áudio em streaming.
 
-            Parâmetros:
-            - running: uma função que retorna um valor booleano indicando se a captura de áudio deve continuar ou não.
+        Parâmetros:
+        - running: uma função que retorna um valor booleano indicando se a captura de áudio deve continuar ou não.
 
-            Retorna:
-            Nenhum valor de retorno.
-            """
-            # Definindo as configurações de gravação de áudio
-            CHUNK = 1024
-            FORMAT = pyaudio.paInt16
-            CHANNELS = 1
-            RATE = 44100
-            RECORD_SECONDS = 5
-            WAVE_OUTPUT_FILENAME1 = "output1.wav"
-            WAVE_OUTPUT_FILENAME2 = "output2.wav"
+        Retorna:
+        Nenhum valor de retorno.
+        """
+        # Definindo as configurações de gravação de áudio
+        CHUNK = 1024
+        RATE = 44100
+        RECORD_SECONDS = 5
+        WAVE_OUTPUT_FILENAME1 = "output1.wav"
+        WAVE_OUTPUT_FILENAME2 = "output2.wav"
 
-            # Inicializando o serviço de configuração
-            self.config_service = ConfigService()
+        # Inicializando o serviço de configuração
+        self.config_service = ConfigService()
 
-            # Inicializando o PyAudio
-            p = pyaudio.PyAudio()
+        # Definindo o arquivo de saída
+        output_file = WAVE_OUTPUT_FILENAME1
 
-            # Definindo o arquivo de saída
-            output_file = WAVE_OUTPUT_FILENAME1
+        # Inicializando a lista de frames
+        frames = []
 
-            # Inicializando a lista de frames
-            frames = []
+        # Lendo o arquivo de configuração
+        openai.api_key = self.config['openai_api_key']
+        client = openai.Client(api_key=openai.api_key)
 
-            # Lendo o arquivo de configuração
-            config = self.config_service.lendo_configuracoes()
-            openai.api_key = config['openai_api_key']
-            client = openai.Client(api_key=openai.api_key)
-            
-            try:
-                # Repetindo a captura de áudio enquanto a função running() retornar True
-                while running():
-                    # Selecionando o driver de áudio
-                    stream = p.open(format=FORMAT,
-                                    channels=CHANNELS,
-                                    rate=RATE,
-                                    input=True,
-                                    frames_per_buffer=CHUNK)
-
-                    # Capturando áudio
+        try:
+            # Repetindo a captura de áudio enquanto a função running() retornar True
+            while running():
+                # Capturando áudio
+                with self.select_audio.recorder(samplerate=RATE) as recorder:
                     for _ in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-                        data = stream.read(CHUNK)
+                        data = recorder.record(numframes=CHUNK)
                         # Adicionando os frames capturados à lista de frames
                         frames.append(data)
 
-                    # Enviando o arquivo de áudio para a API da OpenAI
-                    threading.Thread(target=self.envia_audio_para_openai, args=(output_file, CHANNELS, FORMAT, RATE, frames, p, client)).start()
+                # Enviando o arquivo de áudio para a API da OpenAI
+                threading.Thread(target=self.envia_audio_para_openai, args=(output_file, 1, np.int16, RATE, frames, client)).start()
 
-                    # Parando a captura de áudio
-                    stream.stop_stream()
-                    stream.close()
+                # Alterne entre os dois arquivos
+                if output_file == WAVE_OUTPUT_FILENAME1:
+                    output_file = WAVE_OUTPUT_FILENAME2
+                else:
+                    output_file = WAVE_OUTPUT_FILENAME1
+                frames = []
 
-                    # Alterne entre os dois arquivos
-                    if output_file == WAVE_OUTPUT_FILENAME1:
-                        output_file = WAVE_OUTPUT_FILENAME2
-                    else:
-                        output_file = WAVE_OUTPUT_FILENAME1
-                    frames = []
-
-            # Lidando com exceções   
-            except Exception as e:
-                #print(f"Erro: {e}")
-                pass
-            finally:
-                #print("Gravação de áudio é interrompida.")
-                stream.stop_stream()
-                stream.close()
-                p.terminate()
+        # Lidando com exceções   
+        except Exception as e:
+            #print(f"Erro: {e}")
+            pass
     
-    def envia_audio_para_openai(self, filename, channels, format, rate, frames, p, client):
+    def envia_audio_para_openai(self, filename, channels, format, rate, frames, client):
         """
         Envia um arquivo de áudio para a API da OpenAI para transcrição.
 
@@ -114,18 +100,21 @@ class TranscribeService(QObject):
         Nenhum erro é lançado explicitamente.
 
         """        
+        # Convertendo os frames de numpy array para bytes
+        frames_bytes = b''.join([np.int16(frame).tobytes() for frame in frames])
+
         # Salvando o arquivo de áudio
         wf = wave.open(filename, 'wb')
         wf.setnchannels(channels)
-        wf.setsampwidth(p.get_sample_size(format))
+        wf.setsampwidth(np.dtype(format).itemsize)  # get_sample_size is not needed as we're using numpy dtype
         wf.setframerate(rate)
-        wf.writeframes(b''.join(frames))
+        wf.writeframes(frames_bytes)
 
         # Enviando o arquivo de áudio para a API da OpenAI
-        audio_file = open(filename, "rb")
-        transcription = client.audio.transcriptions.create(
-            model="whisper-1", 
-            file=audio_file)
+        with open(filename, "rb") as audio_file:
+            transcription = client.audio.transcriptions.create(
+                model="whisper-1", 
+                file=audio_file)
         # Enviando a transcrição para o sinal de transcrição
         threading.Thread(target=self.envia_transcricao, args=(transcription.text, filename, client)).start()
         wf.close()
@@ -138,7 +127,7 @@ class TranscribeService(QObject):
         temperature = 0
 
         response = client.chat.completions.create(
-            model="gpt-4-0125-preview",
+            model="gpt-3.5-turbo-0125",
             temperature=temperature,
             messages=[
                 {
