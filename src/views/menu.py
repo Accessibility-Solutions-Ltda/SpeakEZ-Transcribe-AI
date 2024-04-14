@@ -7,6 +7,7 @@ import qtawesome as qta
 SPEAKEZ_PAGE = 'speakez_transcribe_ai'
 HISTORY_PAGE = 'history'
 SETTINGS_PAGE = 'settings'
+INTRODUCAO_PAGE = 'introducao'
 
 class HoverButton(QPushButton):
     def __init__(self, *args, type_icon, **kwargs):
@@ -63,6 +64,7 @@ class Menu(QWidget):
 
         # Cria um QHBoxLayout para o widget da imagem
         h_layout = QHBoxLayout(image_widget)
+        layout.addLayout(h_layout)
 
         # Adiciona um espaçador no início do layout
         h_layout.addStretch()
@@ -71,7 +73,7 @@ class Menu(QWidget):
         image_label = QLabel()
 
         # Carrega a imagem
-        pixmap = QPixmap('src/assets/icons/icon_ez-256x256.png')
+        pixmap = QPixmap(r'src\assets\icons\256x256.png')
 
         # Ajustando o tamanho da imagem
         pixmap = pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
@@ -82,7 +84,7 @@ class Menu(QWidget):
         image_label.setStyleSheet("padding: 100")
 
         # Adiciona o QLabel ao layout
-        h_layout.addWidget(image_label)
+        h_layout.addWidget(image_label, alignment=Qt.AlignmentFlag.AlignLeft) 
 
         # Adiciona outro espaçador no final do layout
         h_layout.addStretch()
@@ -114,6 +116,9 @@ class Menu(QWidget):
 
         button_settings = self.cria_botao('Configurações', SETTINGS_PAGE, 'fa5s.cog')
         button_layout.addWidget(button_settings, alignment=Qt.AlignmentFlag.AlignTop)
+
+        button_help = self.cria_botao('Ajuda', INTRODUCAO_PAGE, 'fa5s.question')
+        button_layout.addWidget(button_help, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adiciona o layout dos botões ao widget
         layout.addWidget(button_widget, alignment=Qt.AlignmentFlag.AlignTop)

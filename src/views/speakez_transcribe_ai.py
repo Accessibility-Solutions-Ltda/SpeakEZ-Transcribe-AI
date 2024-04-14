@@ -4,7 +4,7 @@ from services.transcribe_service import TranscribeService
 import qtawesome as qta
 import re
 
-FONT_SIZE = 'font-size: 20px'
+FONT_SIZE = 'font-size: 18px'
 COLOR_PRIMARY = '#4d608c'
 COLOR_SECONDARY = '#b4cbd9'
 COLOR_TERTIARY = 'white'
@@ -59,7 +59,7 @@ class SpeakezTranscribeAI(QMainWindow):
         # Adiciona um título à janela
         label = QLabel('Página Inicial')
         # Define o estilo do título
-        label.setStyleSheet("font-size: 40px; font-weight: bold; font: Segoe UI; color: {}; margin-top: 20px; margin-bottom: 20px;".format('black'))
+        label.setStyleSheet("font-size: 36px; font-weight: bold; font: Segoe UI; color: {}; margin-top: 20px; margin-bottom: 20px;".format('black'))
         # Adiciona o título ao layout
         layout.addWidget(label)
 
@@ -69,6 +69,7 @@ class SpeakezTranscribeAI(QMainWindow):
 
         # Chamando a função de interface da area de transcrição
         self.interface_transcricao(layout_label)
+
 
         # Chamando a função de interface de conversão de texto em áudio
         self.interface_conversao_texto_audio(layout_label)
@@ -82,7 +83,7 @@ class SpeakezTranscribeAI(QMainWindow):
 
         # Criando texto de transcrição
         self.transcription_titulo = QLabel('Transcrição')
-        self.transcription_titulo.setStyleSheet(FONT_SIZE)
+        self.transcription_titulo.setStyleSheet("font-size: 24px; font: Segoe UI;")
         layout_transcription.addWidget(self.transcription_titulo)
 
         # Adiciona um botão de ligar/desligar
@@ -112,8 +113,8 @@ class SpeakezTranscribeAI(QMainWindow):
     
     def interface_conversao_texto_audio(self, layout_label):
         # Titulo de conversão
-        self.transcription_titulo = QLabel('Convertendo em áudio')
-        self.transcription_titulo.setStyleSheet(FONT_SIZE + "; margin-top: 20px; margin-bottom: 5px;")
+        self.transcription_titulo = QLabel('Conversão para áudio')
+        self.transcription_titulo.setStyleSheet("font-size: 24px; margin-top: 50px; font: Segoe UI; margin-bottom: 0px; ")
         layout_label.addWidget(self.transcription_titulo)
 
         #Criando layout horizontal para a conversão de texto em áudio
@@ -226,6 +227,6 @@ class SpeakezTranscribeAI(QMainWindow):
             
 
     def remover_html(self,texto_atual):
-        texto_atual = re.sub('<[^>]*>|p,\s*li\s*{[^}]*}|hr\s*{[^}]*}|li\.unchecked::marker\s*{[^}]*}|li\.checked::marker\s*{[^}]*}', '', texto_atual)
+        texto_atual = re.sub(r'<[^>]*>|p,\s*li\s*{[^}]*}|hr\s*{[^}]*}|li\.unchecked::marker\s*{[^}]*}|li\.checked::marker\s*{[^}]*}', '', texto_atual)
         return texto_atual
 

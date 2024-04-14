@@ -57,62 +57,50 @@ class Settings(QMainWindow):
         bloco.setFont(fonte_tab)
         tab_audio = QWidget()
         tab_token = QWidget()
-        bloco.addTab(tab_audio, "Áudio")
-        bloco.addTab(tab_token,"Token")
+        bloco.addTab(tab_audio, "Gerenciamento de áudio")
+        bloco.addTab(tab_token,"OpenAI")
         layout.addWidget(bloco)
 
         #Criando QVBoxLayout para a aba de áudio
-        vlayoutaudio = QWidget(parent=tab_audio)      
-        layout_audio = QVBoxLayout(vlayoutaudio)
+        layout_audio_tab = QWidget(parent=tab_audio)      
+        layout_audio = QVBoxLayout(layout_audio_tab)
         layout_audio.setContentsMargins(10,10,0,0)
 
        #Criando QVBoxLayout para a aba de token
-        vlayouttoken = QWidget(parent=tab_token)      
-        layout_token = QVBoxLayout(vlayouttoken)
+        layout_openai_tab = QWidget(parent=tab_token)      
+        layout_token = QVBoxLayout(layout_openai_tab)
         layout_token.setContentsMargins(10,10,0,0)
-
-        #Criando QHBoxLayout para os ComboBox
-        """layout_combobox = QHBoxLayout()
-        layout_combobox.setSpacing(15)
-        layout_combobox.setContentsMargins(20, 0, 10, 10)
-        layout_audio.addLayout(layout_combobox)"""
 
         # Titulo do microfone
         titulo_microfone = QLabel('Dispositivo de entrada - Microfone')
-        titulo_microfone.setStyleSheet('font-size: 15px')
+        titulo_microfone.setStyleSheet('font-size: 18px')
         layout_audio.addWidget(titulo_microfone, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adicionado ComboBox
         self.combobox_microphone =  self.cria_combobox('drivers_microphone')
+        self.combobox_microphone.setStyleSheet('font-size: 14px; font: segoe ui')
         layout_audio.addWidget(self.combobox_microphone, alignment=Qt.AlignmentFlag.AlignTop)
-        #layout.addLayout(layout_combobox)
 
-        #Criando QHoxLayout para os ComboBox
-        """layout_combobox = QHBoxLayout()
-        layout_combobox.setSpacing(15)
-        layout_combobox.setContentsMargins(20, 0, 10, 10)"""
+        # Espaçador entre opções
+        espacador = QSpacerItem(10,20,QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        layout_audio.addSpacerItem(espacador)
 
         # Titulo do audio
         titulo_audio = QLabel('Dispositivo de saída - Audio')
-        titulo_audio.setStyleSheet('font-size: 15px')
+        titulo_audio.setStyleSheet('font-size: 18px')
         layout_audio.addWidget(titulo_audio, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adicionado ComboBox
         self.combobox_audio =  self.cria_combobox('drivers_audio')
+        self.combobox_audio.setStyleSheet('font-size: 14px; font: segoe ui')
         layout_audio.addWidget(self.combobox_audio, alignment=Qt.AlignmentFlag.AlignTop)
         #layout.addLayout(layout_combobox)
-
-        # Cria um bloco de texto para inserir o token da OpenAI
-        #layout_token = QHBoxLayout()
-
-        # Ajusta as margens do bloco de texto
-        #layout_token.setContentsMargins(20, 0, 10, 10)
 
         # Adiciona um título ao bloco de texto
         titulo_token = QLabel('Token da OpenAI:')
 
         # Ajusta o estilo do título
-        titulo_token.setStyleSheet('font-size: 15px; padding: 0px 5px 0px 0px;')
+        titulo_token.setStyleSheet('font-size: 18px;')
 
         # Adiciona o título ao layout
         layout_token.addWidget(titulo_token, alignment=Qt.AlignmentFlag.AlignTop)
@@ -126,7 +114,7 @@ class Settings(QMainWindow):
         
         # Salvar o token da OpenAI
         self.token.textChanged.connect(lambda: self.config_service.salvando_configuracoes({'openai_api_key': self.token.text()}))
-        self.token.setStyleSheet('font-size: 15px')
+        self.token.setStyleSheet('font-size: 14px')
 
         # Adiciona o bloco de texto ao layout
         layout_token.addWidget(self.token, alignment=Qt.AlignmentFlag.AlignTop)
@@ -134,15 +122,14 @@ class Settings(QMainWindow):
 
         # Titulo de configurações de palavra-chave
         titulo_palavra_chave = QLabel('Configurações de palavra-chave')
-        titulo_palavra_chave.setStyleSheet('font-size: 15px')
+        titulo_palavra_chave.setStyleSheet('font-size: 20px; margin-top: 20px; margin-bottom: 5px;')
         layout.addWidget(titulo_palavra_chave, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Abrir uma janela de palavra-chave
         abrir_janela_palavra_chave = QPushButton('Abrir janela de palavra-chave')
+        abrir_janela_palavra_chave.setStyleSheet("font: Segoe UI; font-size: 14px;")
         abrir_janela_palavra_chave.clicked.connect(lambda: self.abrir_janela_palavra_chave())
         layout.addWidget(abrir_janela_palavra_chave, alignment=Qt.AlignmentFlag.AlignTop)
-
-
 
 
         # Cria um widget central e define o layout
