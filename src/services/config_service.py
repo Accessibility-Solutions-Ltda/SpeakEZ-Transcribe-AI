@@ -1,6 +1,6 @@
 import toml
 import pyaudio
-import soundcard as sc
+import sounddevice as sd
 import os
 
 PATH_CONFIG = 'src/config/config.toml'
@@ -39,6 +39,7 @@ class ConfigService:
             config['openai_api_key'] = ''
             with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as file:
                 toml.dump(config, file)
+            self.definir_default_drivers()
         # Registrando drivers de áudio existentes
         self.registrando_drivers_audio()
 
@@ -80,9 +81,12 @@ class ConfigService:
             if device_info['maxInputChannels'] > 0:
                 # Salvando drivers de microfone em arquivo de configuração
                 config['drivers_microphone'][f"{i}"] = device_info['name']
-            speakers = sc.all_speakers()
-        for speaker in speakers:
-            config['drivers_audio'][f"{speaker.id}"] = f"{speaker.name}"
+        speakers = sd.query_devices()
+        for i, speaker in enumerate(speakers):
+            if speaker['max_output_channels'] > 0:
+                # Salvando drivers de áudio de saída em arquivo de configuração
+                config['drivers_audio'][f"{i}"] = speaker['name']
+
 
         # Salva o arquivo de configuração
         with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as file:
@@ -104,10 +108,11 @@ class ConfigService:
 
         # Verifica se os drivers padrão já estão definidos
         if 'selected_drivers_audio' not in config:
-            config['selected_drivers_audio'] = sc.default_speaker().index
+            config['selected_drivers_audio'] = str(sd.default.device[1])
+            print(config['selected_drivers_audio'])
         if 'selected_drivers_microphone' not in config:
-            config['selected_drivers_microphone'] = self.audio.get_default_output_device_info()['index']
-
+            config['selected_drivers_microphone'] = str(sd.default.device[0])
+            print(config['selected_drivers_microphone'])
         # Salva o arquivo de configuração
         with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as file:
             toml.dump(config, file)

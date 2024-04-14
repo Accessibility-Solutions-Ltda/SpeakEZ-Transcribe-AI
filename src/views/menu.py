@@ -59,15 +59,9 @@ class Menu(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        # Cria um widget para a imagem
-        image_widget = QWidget()
-
         # Cria um QHBoxLayout para o widget da imagem
-        h_layout = QHBoxLayout(image_widget)
+        h_layout = QHBoxLayout()
         layout.addLayout(h_layout)
-
-        # Adiciona um espaçador no início do layout
-        h_layout.addStretch()
 
         # Cria um QLabel para a imagem
         image_label = QLabel()
@@ -81,19 +75,9 @@ class Menu(QWidget):
         # Define o pixmap do QLabel para a imagem
         image_label.setPixmap(pixmap)
 
-        image_label.setStyleSheet("padding: 100")
+        image_label.setStyleSheet("padding: 118")
+        h_layout.addWidget(image_label, alignment=Qt.AlignmentFlag.AlignCenter) 
 
-        # Adiciona o QLabel ao layout
-        h_layout.addWidget(image_label, alignment=Qt.AlignmentFlag.AlignLeft) 
-
-        # Adiciona outro espaçador no final do layout
-        h_layout.addStretch()
-
-        # Define o layout do widget
-        image_widget.setLayout(h_layout)
-
-        # Adiciona o widget ao layout principal
-        layout.addWidget(image_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Titulo de menu
         titulo_menu = QLabel('Menu')
