@@ -50,7 +50,16 @@ class ConfigService:
             with open('src/config/palavra_chave.csv', 'w') as file:
                 file.write('termo_original,termo_substituto\n')
                 #print('Arquivo de palavra chave criado.')
+        
+        #Criando csv de histórico
+        try:
+            with open('src/config/historico.csv', 'r') as _:
+                #print('Arquivo de histórico encontrado.')
                 pass
+        except FileNotFoundError:
+            with open('src/config/historico.csv', 'w') as file:
+                file.write('data|hora|transcricao\n')
+                #print('Arquivo de histórico criado.')
 
 
 

@@ -5,6 +5,7 @@ import openai
 import threading
 from PyQt6.QtCore import pyqtSignal, QObject
 import timeit
+from datetime import datetime
 
 
 class TranscribeService(QObject):
@@ -63,6 +64,7 @@ class TranscribeService(QObject):
             try:
                 # Repetindo a captura de áudio enquanto a função running() retornar True
                 while running():
+                    data_hora_atual = datetime.now()
                     # Selecionando o driver de áudio
                     stream = p.open(format=FORMAT,
                                     channels=CHANNELS,
@@ -77,7 +79,7 @@ class TranscribeService(QObject):
                         frames.append(data)
 
                     # Enviando o arquivo de áudio para a API da OpenAI
-                    threading.Thread(target=self.envia_audio_para_openai, args=(output_file, CHANNELS, FORMAT, RATE, frames, p, client)).start()
+                    threading.Thread(target=self.envia_audio_para_openai, args=(output_file, CHANNELS, FORMAT, RATE, frames, p, client, data_hora_atual)).start()
 
                     # Parando a captura de áudio
                     stream.stop_stream()
@@ -100,7 +102,7 @@ class TranscribeService(QObject):
                 stream.close()
                 p.terminate()
     
-    def envia_audio_para_openai(self, filename, channels, format, rate, frames, p, client):
+    def envia_audio_para_openai(self, filename, channels, format, rate, frames, p, client, data_hora_atual):
         """
         Envia um arquivo de áudio para a API da OpenAI para transcrição.
 
@@ -127,7 +129,7 @@ class TranscribeService(QObject):
             model="whisper-1", 
             file=audio_file)
         # Enviando a transcrição para o sinal de transcrição
-        threading.Thread(target=self.envia_transcricao, args=(transcription.text, filename, client)).start()
+        threading.Thread(target=self.envia_transcricao, args=(transcription.text, filename, client, data_hora_atual)).start()
         wf.close()
     
     def envia_openai_corrigir(self, texto, audio_file, client):
@@ -153,28 +155,29 @@ class TranscribeService(QObject):
         )
         return response.choices[0].message.content
 
-    def envia_transcricao(self, transcription, filename, client):
+    def envia_transcricao(self, transcription, filename, client, data_hora_atual):
         """
         Envia a transcrição para o sinal de transcrição.
-    
+
         Args:
             transcription (str): A transcrição a ser enviada.
-    
+
         Returns:
             None
         """
         transcription = transcription.replace("...", " ")
         self.transcricao_original += transcription
-        is_corrigido = False
 
         if self.contador_transcricao == 5:
-            self.transcripton_signal.emit(transcription, is_corrigido, self.transcricao_original)
+            self.transcripton_signal.emit(transcription, False, "")
             transcription = self.envia_openai_corrigir(self.transcricao_original, filename, client)
-            is_corrigido = True
+            self.transcripton_signal.emit(transcription, True, self.transcricao_original)
+            threading.Thread(target=self.salva_historico, args=(transcription, data_hora_atual)).start()
+            self.transcricao_original = ""
             self.contador_transcricao = 0
-    
-        self.transcripton_signal.emit(transcription, is_corrigido, self.transcricao_original if is_corrigido else "")
-        
+        else:
+            self.transcripton_signal.emit(transcription, False, "")
+
         self.contador_transcricao += 1
         print(self.contador_transcricao)
 
@@ -196,3 +199,14 @@ class TranscribeService(QObject):
             select = config['selected_drivers_microphone']
             device_id = int(select)
             return device_id
+    def salva_historico(self, transcription, data_hora_atual):
+        """
+        Salva a transcrição no arquivo de histórico.
+
+        Este método salva a transcrição no arquivo de histórico, juntamente com a data e a hora da transcrição.
+
+        Parâmetros: transcription (str): A transcrição a ser salva. data_hora_atual (float): A data e a hora da transcrição."""
+        # Salvando a transcrição no arquivo csv de histórico
+        with open('src/config/historico.csv', 'a') as file:
+            # data, hora, transcrição
+            file.write(f"{data_hora_atual.date()}|{data_hora_atual.time()}|{transcription}\n")

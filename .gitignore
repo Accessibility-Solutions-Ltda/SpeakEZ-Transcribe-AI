@@ -168,3 +168,4 @@ config.toml
 output1.wav
 output2.wav
 src/config/palavra_chave.csv
+src/config/historico.csv
