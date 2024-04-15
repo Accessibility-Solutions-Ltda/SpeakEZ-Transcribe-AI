@@ -31,8 +31,7 @@ class ConfigService:
                 os.makedirs('src/config/')
             # Criando arquivo de configuração
             with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as _:
-                #print('Arquivo de configuração criado.')
-                pass
+                self.definir_default_drivers_openai()
             # Criando seção config['openai_api_key']
             config = toml.load(open(PATH_CONFIG, 'r', encoding='iso-8859-1'))
             config['openai_api_key'] = ''
@@ -98,7 +97,7 @@ class ConfigService:
 
         self.audio.terminate()
     
-    def definir_default_drivers(self):
+    def definir_default_drivers_openai(self):
         """
         Define os drivers de áudio e microfone padrão do sistema operacional.
 
@@ -115,6 +114,9 @@ class ConfigService:
             config['selected_drivers_audio'] = self.audio.get_default_input_device_info()['index']
         if 'selected_drivers_microphone' not in config:
             config['selected_drivers_microphone'] = self.audio.get_default_output_device_info()['index']
+        config['select_model_gpt_transcribe'] = 'gpt-3.5-turbo-0125'
+        config['select_model_gpt_correct'] = 'gpt-3.5-turbo-0125'
+        config['list_models'] = ['gpt-4-turbo', 'gpt-3.5-turbo-0125', "gpt-4-turbo-preview", "gpt-4"]
 
         # Salva o arquivo de configuração
         with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as file:

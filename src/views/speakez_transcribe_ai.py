@@ -1,6 +1,7 @@
-from PyQt6.QtWidgets import QMainWindow, QLabel, QPushButton, QVBoxLayout, QTextEdit, QWidget, QHBoxLayout, QSizePolicy, QProgressBar, QStackedWidget
+from PyQt6.QtWidgets import QMainWindow, QLabel, QPushButton, QVBoxLayout, QTextEdit, QWidget, QHBoxLayout, QSizePolicy, QProgressBar, QStackedWidget, QMessageBox
 from PyQt6.QtCore import QThread, QSize, Qt
 from services.transcribe_service import TranscribeService
+from services.config_service import ConfigService
 import qtawesome as qta
 import re
 
@@ -44,6 +45,11 @@ class ConvertendoTextoEmAudio(QThread):
 class SpeakezTranscribeAI(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        # Inicializa o serviço de configuração
+        self.config_service = ConfigService()
+        self.config = self.config_service.lendo_configuracoes()
+        self.key = self.config['openai_api_key']
 
         # Cria uma instância do serviço de transcrição
         self.audio_gravador_stream = AudioGravadorStream()
@@ -197,8 +203,14 @@ class SpeakezTranscribeAI(QMainWindow):
             self.switch_button.setText('Ligado')
             self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; color: {}; {}'.format(COLOR_PRIMARY, COLOR_TERTIARY, COLOR_TERTIARY, FONT_SIZE))
 
-            # Inicia a gravação de áudio
-            self.audio_gravador_stream.start()
+            if self.key == '':
+                QMessageBox.critical(self, 'Erro', 'Por favor, insira sua chave de API da OpenAI nas configurações.', QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+                self.switch_button.setText('Desligado')
+                self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; {}'.format(COLOR_SECONDARY, COLOR_PRIMARY, FONT_SIZE))
+
+            else:
+                # Inicia a gravação de áudio
+                self.audio_gravador_stream.start()
         else:
             self.switch_button.setText('Desligado')
             self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; {}'.format(COLOR_SECONDARY, COLOR_PRIMARY, FONT_SIZE))

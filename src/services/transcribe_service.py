@@ -1,6 +1,7 @@
 import pyaudio
 import wave
 from services.config_service import ConfigService
+from services.openai_client import OpenaiClient
 import openai
 import threading
 from PyQt6.QtCore import pyqtSignal, QObject
@@ -56,10 +57,8 @@ class TranscribeService(QObject):
             # Inicializando a lista de frames
             frames = []
 
-            # Lendo o arquivo de configuração
-            config = self.config_service.lendo_configuracoes()
-            openai.api_key = config['openai_api_key']
-            client = openai.Client(api_key=openai.api_key)
+            # Inicializando o cliente da OpenAI
+            client = OpenaiClient().return_client()
             
             try:
                 # Repetindo a captura de áudio enquanto a função running() retornar True
@@ -140,7 +139,7 @@ class TranscribeService(QObject):
         temperature = 0
 
         response = client.chat.completions.create(
-            model="gpt-4-0125-preview",
+            model="gpt-3.5-turbo-0125",
             temperature=temperature,
             messages=[
                 {
@@ -209,4 +208,4 @@ class TranscribeService(QObject):
         # Salvando a transcrição no arquivo csv de histórico
         with open('src/config/historico.csv', 'a') as file:
             # data, hora, transcrição
-            file.write(f"{data_hora_atual.date()}|{data_hora_atual.time()}|{transcription}\n")
+            file.write(f"{data_hora_atual.date().strftime('%d/%m/%Y')}|{data_hora_atual.time().strftime('%H:%M:%S')}|{transcription}\n")

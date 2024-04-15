@@ -1,5 +1,4 @@
 from PyQt6.QtWidgets import QMainWindow, QPushButton, QVBoxLayout, QWidget, QSizePolicy, QTableWidget, QHeaderView, QTableWidgetItem
-from PyQt6.QtWidgets import QTableWidget, QWidget
 from services.config_service import ConfigService
 import csv
 
