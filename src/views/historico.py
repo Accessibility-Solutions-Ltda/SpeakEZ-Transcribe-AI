@@ -61,7 +61,7 @@ class Historico(QMainWindow):
     
     def preenchendo_tabela(self):
         # Lendo o arquivo csv
-        with open('src\config\historico.csv', 'r') as file:
+        with open('src\config\historico.csv', 'r', encoding='utf-8') as file:
             reader = csv.reader(file, delimiter='|')
             dados = list(reader)
 
@@ -87,7 +87,7 @@ class Historico(QMainWindow):
 
     def carregando_data(self):
         #Lendo o arquivo csv
-        with open('src\config\historico.csv', 'r') as file:
+        with open('src\config\historico.csv', 'r', encoding='utf-8') as file:
             reader = csv.reader(file, delimiter='|')
             dados = list(reader)
 
@@ -210,7 +210,7 @@ class Historico(QMainWindow):
     def exportar_transcricoes(self):
         try:
             # Lendo o arquivo csv
-            with open('src\config\historico.csv', 'r') as file:
+            with open('src\config\historico.csv', 'r', encoding='utf-8') as file:
                 reader = csv.reader(file, delimiter='|')
                 dados = list(reader)
 
@@ -245,7 +245,7 @@ class Historico(QMainWindow):
         try:
             self.progress_bar.show()
             # Lendo o arquivo csv
-            with open('src\config\historico.csv', 'r') as file:
+            with open('src\config\historico.csv', 'r', encoding='utf-8') as file:
                 reader = csv.reader(file, delimiter='|')
                 dados = list(reader)
 
@@ -271,7 +271,7 @@ class Historico(QMainWindow):
                 
                 #envia para a api da openai
                 client = OpenaiClient().return_client()
-                system_prompt = "{Crie uma anotação longa e detalhada} and {Gere To Do se for necessário}"
+                system_prompt = "Gere uma anotação resumindo as transcrições do dia. E Gere To-Do's para as tarefas mencionadas."
                 temperature = 0
 
                 response = client.chat.completions.create(

@@ -206,6 +206,6 @@ class TranscribeService(QObject):
 
         Parâmetros: transcription (str): A transcrição a ser salva. data_hora_atual (float): A data e a hora da transcrição."""
         # Salvando a transcrição no arquivo csv de histórico
-        with open('src/config/historico.csv', 'a') as file:
+        with open('src/config/historico.csv', 'a', encoding='utf-8') as file:
             # data, hora, transcrição
             file.write(f"{data_hora_atual.date().strftime('%d/%m/%Y')}|{data_hora_atual.time().strftime('%H:%M:%S')}|{transcription}\n")

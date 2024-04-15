@@ -21,7 +21,7 @@ class ConfigService:
         """
         # Verificando se arquivo de configuração existe
         try:
-            with open(PATH_CONFIG, 'r', encoding='iso-8859-1') as _:
+            with open(PATH_CONFIG, 'r', encoding='utf-8') as _:
                 #print('Arquivo de configuração encontrado.')
                 pass
         except FileNotFoundError:
@@ -30,12 +30,12 @@ class ConfigService:
                 # Criando diretório de configuração
                 os.makedirs('src/config/')
             # Criando arquivo de configuração
-            with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as _:
+            with open(PATH_CONFIG, 'w', encoding='utf-8') as _:
                 self.definir_default_drivers_openai()
             # Criando seção config['openai_api_key']
-            config = toml.load(open(PATH_CONFIG, 'r', encoding='iso-8859-1'))
+            config = toml.load(open(PATH_CONFIG, 'r', encoding='utf-8'))
             config['openai_api_key'] = ''
-            with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as file:
+            with open(PATH_CONFIG, 'w', encoding='utf-8') as file:
                 toml.dump(config, file)
         # Registrando drivers de áudio existentes
         self.registrando_drivers_audio()
@@ -52,11 +52,11 @@ class ConfigService:
         
         #Criando csv de histórico
         try:
-            with open('src/config/historico.csv', 'r') as _:
+            with open('src/config/historico.csv', 'r', encoding='utf-8') as _:
                 #print('Arquivo de histórico encontrado.')
                 pass
         except FileNotFoundError:
-            with open('src/config/historico.csv', 'w') as file:
+            with open('src/config/historico.csv', 'w', encoding='utf-8') as file:
                 file.write('data|hora|transcricao\n')
                 #print('Arquivo de histórico criado.')
 
@@ -74,7 +74,7 @@ class ConfigService:
         """
 
         # Carrega o arquivo de configuração existente
-        config = toml.load(open(PATH_CONFIG, 'r', encoding='iso-8859-1'))
+        config = toml.load(open(PATH_CONFIG, 'r', encoding='utf-8'))
 
         # Cria uma nova seção para os drivers de microfone
         config['drivers_microphone'] = {}
@@ -92,7 +92,7 @@ class ConfigService:
                 config['drivers_audio'][f"{i}"] = device_info['name']
 
         # Salva o arquivo de configuração
-        with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as file:
+        with open(PATH_CONFIG, 'w', encoding='utf-8') as file:
             toml.dump(config, file)
 
         self.audio.terminate()
@@ -107,7 +107,7 @@ class ConfigService:
             None
         """
         # Carrega o arquivo de configuração existente
-        config = toml.load(open(PATH_CONFIG, 'r', encoding='iso-8859-1'))
+        config = toml.load(open(PATH_CONFIG, 'r', encoding='utf-8'))
 
         # Verifica se os drivers padrão já estão definidos
         if 'selected_drivers_audio' not in config:
@@ -119,7 +119,7 @@ class ConfigService:
         config['list_models'] = ['gpt-4-turbo', 'gpt-3.5-turbo-0125', "gpt-4-turbo-preview", "gpt-4"]
 
         # Salva o arquivo de configuração
-        with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as file:
+        with open(PATH_CONFIG, 'w', encoding='utf-8') as file:
             toml.dump(config, file)
 
     def lendo_configuracoes(self):
@@ -129,7 +129,7 @@ class ConfigService:
         Returns:
             dict: Um dicionário contendo as configurações lidas do arquivo de configuração.
         """
-        config = toml.load(open(PATH_CONFIG, 'r', encoding='iso-8859-1'))
+        config = toml.load(open(PATH_CONFIG, 'r', encoding='utf-8'))
         return config
     
     def salvando_configuracoes(self, new_config):
@@ -144,14 +144,14 @@ class ConfigService:
 
         """
         # Carrega as configurações existentes
-        with open(PATH_CONFIG, 'r', encoding='iso-8859-1') as file:
+        with open(PATH_CONFIG, 'r', encoding='utf-8') as file:
             config = toml.load(file)
 
         # Atualiza as configurações
         config.update(new_config)
 
         # Salva as configurações atualizadas
-        with open(PATH_CONFIG, 'w', encoding='iso-8859-1') as file:
+        with open(PATH_CONFIG, 'w', encoding='utf-8') as file:
             toml.dump(config, file)
 
         return config
