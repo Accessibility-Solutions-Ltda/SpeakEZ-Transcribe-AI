@@ -5,6 +5,7 @@ from views.menu import Menu
 from views.speakez_transcribe_ai import SpeakezTranscribeAI
 from views.historico import Historico
 from views.settings import Settings
+from views.ajuda import Ajuda
 from services.config_service import ConfigService
 import ctypes
 
@@ -42,7 +43,7 @@ class Main(QMainWindow):
         self.setWindowTitle('SpeakEZ Transcribe AI')
 
         #Icone do aplicativo
-        self.setWindowIcon(QIcon(r'src\assets\icons\256x256.png'))
+        self.setWindowIcon(QIcon('src\assets\icons\256x256.png'))
 
         #Menu
         self.menu = Menu()
@@ -107,6 +108,14 @@ class Main(QMainWindow):
 
             # Cria um novo layout
             layout.addWidget(self.settings)
+
+        elif page == "ajuda":
+            # Cria o novo widget Ajuda
+            self.ajuda = Ajuda()
+
+            # Cria um novo layout
+            layout.addWidget(self.ajuda)
+            
         elif page == "introducao":
             # Cria o novo widget Introducao
             self.introducao = Introducao()

@@ -8,6 +8,7 @@ SPEAKEZ_PAGE = 'speakez_transcribe_ai'
 HISTORY_PAGE = 'history'
 SETTINGS_PAGE = 'settings'
 INTRODUCAO_PAGE = 'introducao'
+AJUDA_PAGE = 'ajuda'
 
 class HoverButton(QPushButton):
     def __init__(self, *args, type_icon, **kwargs):
@@ -73,7 +74,7 @@ class Menu(QWidget):
         image_label = QLabel()
 
         # Carrega a imagem
-        pixmap = QPixmap(r'src\assets\icons\256x256.png')
+        pixmap = QPixmap('src\assets\icons\256x256.png')
 
         # Ajustando o tamanho da imagem
         pixmap = pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
@@ -117,7 +118,7 @@ class Menu(QWidget):
         button_settings = self.cria_botao('Configurações', SETTINGS_PAGE, 'fa5s.cog')
         button_layout.addWidget(button_settings, alignment=Qt.AlignmentFlag.AlignTop)
 
-        button_help = self.cria_botao('Ajuda', INTRODUCAO_PAGE, 'fa5s.question')
+        button_help = self.cria_botao('Ajuda', AJUDA_PAGE, 'fa5s.question')
         button_layout.addWidget(button_help, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adiciona o layout dos botões ao widget

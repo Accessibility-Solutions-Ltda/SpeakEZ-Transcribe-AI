@@ -1,4 +1,5 @@
-from PyQt6.QtWidgets import QMainWindow, QLabel
+from PyQt6.QtWidgets import QTabWidget, QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QHBoxLayout, QLineEdit, QPushButton, QSpacerItem
+from PyQt6.QtCore import Qt
 
 class Introducao(QMainWindow):
     """
@@ -15,8 +16,16 @@ class Introducao(QMainWindow):
     """
     def __init__(self):
         super().__init__()
+        # Adicionado layout vertical
+        central_widget = QWidget()
+        layout = QVBoxLayout(central_widget)
+        self.setCentralWidget(central_widget)
+        
+        # Ajustando margens
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(0)
 
-        #Teste
-        label = QLabel('Introducao')
-        label.setStyleSheet('font-size: 20px')
-        self.setCentralWidget(label)
+        # Adicionado titulo
+        titulo = QLabel('Introdução')
+        titulo.setStyleSheet('font-size: 40px; font-weight: bold; font: segoe ui; margin-top: 20px; margin-bottom: 20px;')
+        layout.addWidget(titulo, alignment=Qt.AlignmentFlag.AlignTop)
