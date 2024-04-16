@@ -1,9 +1,12 @@
 from PyQt6.QtWidgets import QMainWindow, QLabel, QPushButton, QVBoxLayout, QTextEdit, QWidget, QHBoxLayout, QSizePolicy, QProgressBar, QStackedWidget, QMessageBox
 from PyQt6.QtCore import QThread, QSize, Qt
+from services.conversion_service import ConvertendoTextoEmAudio
 from services.transcribe_service import TranscribeService
 from services.config_service import ConfigService
+from services.corrigindo_texto import CorrigindoTexto
 import qtawesome as qta
 import re
+
 
 FONT_SIZE = 'font-size: 18px'
 COLOR_PRIMARY = '#4d608c'
@@ -38,9 +41,6 @@ class AudioGravadorStream(QThread):
         #Para a gravação em streaming.
         self.running = False
     
-class ConvertendoTextoEmAudio(QThread):
-    def __init__(self):
-        super().__init__()
 
 class SpeakezTranscribeAI(QMainWindow):
     def __init__(self):
@@ -143,10 +143,14 @@ class SpeakezTranscribeAI(QMainWindow):
         layout_buttons = QVBoxLayout()
         # Adicionando um botão para corrigir texto
         self.correct_button = self.criando_botoes_conversion('Corrigir', 'fa5s.magic', 'white')
+        self.correct_button.clicked.connect(self.corrigir_texto)
         layout_buttons.addWidget(self.correct_button)
         # Adicionando um botão para converter texto em áudio
         # Adicionando um iconé ao botão
         self.convert_button = self.criando_botoes_conversion('Converter', 'fa5s.play', 'white')
+        self.convert_button.clicked.connect(self.converter_texto_em_audio)
+
+
         layout_buttons.addWidget(self.convert_button)
         # Adicionando um layout de botões ao layout de conversão
         layout_conversion.addLayout(layout_buttons)
@@ -218,6 +222,40 @@ class SpeakezTranscribeAI(QMainWindow):
             # Para a gravação de áudio
             self.audio_gravador_stream.stop()
 
+
+    def converter_texto_em_audio(self):
+        """
+        Inicia a conversão de texto em áudio.
+        """
+        text = self.conversion_text.toPlainText()
+        if text:
+            # Atualiza a interface do usuário para exibir a barra de progresso
+            self.stacked_widget.setCurrentIndex(1)
+
+            if self.key == '':
+                QMessageBox.critical(self, 'Erro', 'Por favor, insira sua chave de API da OpenAI nas configurações.', QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+                self.switch_button.setText('Desligado')
+                self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; {}'.format(COLOR_SECONDARY, COLOR_PRIMARY, FONT_SIZE))
+                self.conversion_progress.hide()
+            
+            else:
+        
+                # Inicia a conversão de texto em áudio em uma nova thread
+                self.conversion_thread = ConvertendoTextoEmAudio(text)
+                self.conversion_thread.finished.connect(self.conversao_concluida)
+                self.conversion_thread.start()
+        else:
+            QMessageBox.critical(self, 'Erro', 'Por favor, insira o texto que deseja converter.', QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+            self.conversion_progress.hide()
+
+    def conversao_concluida(self):
+        """
+        Função chamada quando a conversão de texto em áudio é concluída.
+        """
+        # Atualiza a interface do usuário para exibir o campo de texto de conversão
+        self.stacked_widget.setCurrentIndex(0)
+
+
     def receber_transcricao(self, transcription, is_corrigido, texto_a_remover):
         """
         Adiciona a transcrição recebida à caixa de transcrição existente.
@@ -241,4 +279,33 @@ class SpeakezTranscribeAI(QMainWindow):
     def remover_html(self,texto_atual):
         texto_atual = re.sub(r'<[^>]*>|p,\s*li\s*{[^}]*}|hr\s*{[^}]*}|li\.unchecked::marker\s*{[^}]*}|li\.checked::marker\s*{[^}]*}', '', texto_atual)
         return texto_atual
+    
+    def corrigir_texto(self):
+        """
+        Corrige o texto na caixa de transcrição.
+        """
+        texto = self.conversion_text.toPlainText()
+        self.stacked_widget.setCurrentIndex(1)
+        
+        if texto:
+            if self.key == '':
+                QMessageBox.critical(self, 'Erro', 'Por favor, insira sua chave de API da OpenAI nas configurações.', QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+                self.conversion_progress.hide()
+            else:
+                # Inicia a correção do texto em uma nova thread
+                self.correction_thread = CorrigindoTexto(texto)
+                self.correction_thread.finished.connect(self.correcao_concluida)
+                self.correction_thread.start()
+        else:
+            QMessageBox.critical(self, 'Erro', 'Por favor, insira o texto que deseja corrigir.', QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+            self.conversion_progress.hide()
+
+    def correcao_concluida(self):
+        """
+        Função chamada quando a correção do texto é concluída.
+        """
+        # Atualiza a interface do usuário para exibir o campo de texto de conversão
+        self.stacked_widget.setCurrentIndex(0)
+        self.conversion_text.setPlainText(self.correction_thread.resultado)
+
 
