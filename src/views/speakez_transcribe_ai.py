@@ -9,7 +9,6 @@ import qtawesome as qta
 import re
 
 
-FONT_SIZE = 'font-size: 18px'
 COLOR_PRIMARY = '#4d608c'
 COLOR_SECONDARY = '#b4cbd9'
 COLOR_TERTIARY = 'white'
@@ -50,6 +49,8 @@ class SpeakezTranscribeAI(QMainWindow):
         # Inicializa o serviço de configuração
         self.config = ConfigService().lendo_configuracoes()
         self.key = self.config['openai_api_key']
+        self.font_size = self.config['font_size']
+        self.font_size_constant = f'font-size: {str(self.font_size)}px;'
 
         # Cria uma instância do serviço de transcrição
         self.audio_gravador_stream = AudioGravadorStream()
@@ -89,14 +90,14 @@ class SpeakezTranscribeAI(QMainWindow):
 
         # Criando texto de transcrição
         self.transcription_titulo = QLabel('Transcrição')
-        self.transcription_titulo.setStyleSheet("font-size: 24px; font: Segoe UI;")
+        self.transcription_titulo.setStyleSheet(f"font-size: {self.font_size}px; font: Segoe UI;")
         layout_transcription.addWidget(self.transcription_titulo)
 
         # Adiciona um botão de ligar/desligar
         self.switch_button = QPushButton('Desligado')
         self.switch_button.setCheckable(True)
         self.switch_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; {};'.format(COLOR_SECONDARY, COLOR_PRIMARY, FONT_SIZE))
+        self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; {};'.format(COLOR_SECONDARY, COLOR_PRIMARY, self.font_size_constant))
         self.switch_button.setFixedWidth(125)
 
         # Define a política de tamanho do botão
@@ -114,13 +115,13 @@ class SpeakezTranscribeAI(QMainWindow):
         # Adiciona um campo de texto
         self.transcription_box = QTextEdit()
         self.transcription_box.setReadOnly(True)
-        self.transcription_box.setStyleSheet("border: 2px solid {}; border-radius: 10px; background-color: palette(base); {}".format(COLOR_PRIMARY, FONT_SIZE))
+        self.transcription_box.setStyleSheet("border: 2px solid {}; border-radius: 10px; background-color: palette(base); {}".format(COLOR_PRIMARY, self.font_size_constant))
         layout_label.addWidget(self.transcription_box)
     
     def interface_conversao_texto_audio(self, layout_label):
         # Titulo de conversão
         self.transcription_titulo = QLabel('Conversão para áudio')
-        self.transcription_titulo.setStyleSheet("font-size: 24px; margin-top: 50px; font: Segoe UI; margin-bottom: 0px; ")
+        self.transcription_titulo.setStyleSheet(f"font-size: {self.font_size}px; margin-top: 50px; font: Segoe UI; margin-bottom: 0px; ")
         layout_label.addWidget(self.transcription_titulo)
 
         #Criando layout horizontal para a conversão de texto em áudio
@@ -136,7 +137,7 @@ class SpeakezTranscribeAI(QMainWindow):
         # Adicionando um campo de texto como entrada
         self.conversion_text = QTextEdit()
         self.conversion_text.setPlaceholderText('Digite o texto aqui...')
-        self.conversion_text.setStyleSheet("border: 2px solid {}; border-radius: 10px; background-color: palette(base); {}".format(COLOR_PRIMARY, FONT_SIZE))
+        self.conversion_text.setStyleSheet("border: 2px solid {}; border-radius: 10px; background-color: palette(base); {}".format(COLOR_PRIMARY, self.font_size_constant))
         layout_conversion.addWidget(self.conversion_text)
 
         #Criando layout vertical para os botões
@@ -190,7 +191,7 @@ class SpeakezTranscribeAI(QMainWindow):
         button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.setIcon(icon)
         button.setIconSize(QSize(18, 18))
-        button.setStyleSheet('background-color: {}; color: {}; padding: 10px; border: none; border-style: none;border-radius: 10px;{}'.format(COLOR_PRIMARY, COLOR_TERTIARY, FONT_SIZE))
+        button.setStyleSheet('background-color: {}; color: {}; padding: 10px; border: none; border-style: none;border-radius: 10px;{}'.format(COLOR_PRIMARY, COLOR_TERTIARY, self.font_size_constant))
         button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
         button.setFixedWidth(fixed_width)
         return button
@@ -205,19 +206,19 @@ class SpeakezTranscribeAI(QMainWindow):
         """
         if self.switch_button.isChecked():
             self.switch_button.setText('Ligado')
-            self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; color: {}; {}'.format(COLOR_PRIMARY, COLOR_TERTIARY, COLOR_TERTIARY, FONT_SIZE))
+            self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; color: {}; {}'.format(COLOR_PRIMARY, COLOR_TERTIARY, COLOR_TERTIARY, self.font_size_constant))
 
             if self.key == '':
                 QMessageBox.critical(self, 'Erro', 'Por favor, insira sua chave de API da OpenAI nas configurações.', QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
                 self.switch_button.setText('Desligado')
-                self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; {}'.format(COLOR_SECONDARY, COLOR_PRIMARY, FONT_SIZE))
+                self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; {}'.format(COLOR_SECONDARY, COLOR_PRIMARY, self.font_size_constant))
 
             else:
                 # Inicia a gravação de áudio
                 self.audio_gravador_stream.start()
         else:
             self.switch_button.setText('Desligado')
-            self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; {}'.format(COLOR_SECONDARY, COLOR_PRIMARY, FONT_SIZE))
+            self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; {}'.format(COLOR_SECONDARY, COLOR_PRIMARY, self.font_size_constant))
 
             # Para a gravação de áudio
             self.audio_gravador_stream.stop()
@@ -235,7 +236,7 @@ class SpeakezTranscribeAI(QMainWindow):
             if self.key == '':
                 QMessageBox.critical(self, 'Erro', 'Por favor, insira sua chave de API da OpenAI nas configurações.', QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
                 self.switch_button.setText('Desligado')
-                self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; {}'.format(COLOR_SECONDARY, COLOR_PRIMARY, FONT_SIZE))
+                self.switch_button.setStyleSheet('background-color: {}; padding: 10px; border: 2px solid {}; border-radius: 10px; {}'.format(COLOR_SECONDARY, COLOR_PRIMARY, self.font_size_constant))
                 self.conversion_progress.hide()
             
             else:

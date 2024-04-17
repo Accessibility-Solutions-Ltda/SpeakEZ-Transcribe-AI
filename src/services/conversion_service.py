@@ -6,7 +6,8 @@ import pygame
 import os
 from pathlib import Path
 import time
-
+import threading
+import datetime
 class ConvertendoTextoEmAudio(QThread):
     """
     Classe responsável por converter texto em áudio.
@@ -24,10 +25,14 @@ class ConvertendoTextoEmAudio(QThread):
             # Inicializando o cliente da OpenAI
             client = OpenaiClient().return_client()
 
+            threading.Thread(target=self.salvar_no_csv, args=(self.text,)).start()
+
+            voice = self.config['style_voice']
+
             # Faz a solicitação para a API OpenAI para gerar o áudio a partir do texto
             response = client.audio.speech.create(
                 model="tts-1",
-                voice="onyx",
+                voice=voice,
                 input=self.text
             )
 
@@ -61,3 +66,11 @@ class ConvertendoTextoEmAudio(QThread):
 
         except Exception as e:
             print("Erro ao reproduzir áudio:", e)
+
+    def salvar_no_csv(self, text):
+        data_hora_atual = datetime.datetime.now()
+        text = text.replace('\n', ' ')
+        with open('src/config/historico.csv', 'a', encoding='utf-8') as file:
+            # data, hora, transcrição
+            file.write(f"{data_hora_atual.date().strftime('%d/%m/%Y')}|{data_hora_atual.time().strftime('%H:%M:%S')}||{text}\n")
+

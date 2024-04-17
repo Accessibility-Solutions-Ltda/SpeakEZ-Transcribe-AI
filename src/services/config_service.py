@@ -37,6 +37,7 @@ class ConfigService:
             config['openai_api_key'] = ''
             config['volume_audio'] = 0.5
             config['font_size'] = 18
+            config['style_voice'] = 'alloy'
             with open(PATH_CONFIG, 'w', encoding='utf-8') as file:
                 toml.dump(config, file)
 
@@ -60,7 +61,7 @@ class ConfigService:
                 pass
         except FileNotFoundError:
             with open('src/config/historico.csv', 'w', encoding='utf-8') as file:
-                file.write('data|hora|transcricao\n')
+                file.write('data|hora|transcricao|conversion\n')
                 #print('Arquivo de histórico criado.')
 
 

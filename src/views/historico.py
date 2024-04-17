@@ -8,8 +8,8 @@ import threading
 
 from services.openai_client import OpenaiClient
 from services.config_service import ConfigService
+from services.conversion_service import ConvertendoTextoEmAudio
 
-FONT_SIZE = 'font-size: 18px;'
 COLOR_PRIMARY = '#4d608c'
 COLOR_SECONDARY = '#b4cbd9'
 COLOR_TERTIARY = 'white'
@@ -30,6 +30,12 @@ class Historico(QMainWindow):
         super().__init__()
 
         self.config_service = ConfigService()
+        self.config = self.config_service.lendo_configuracoes()
+        self.font_size = self.config['font_size']
+        self.font_size_constant = f'font-size: {str(self.font_size)}px;'
+
+        self.table = QTableWidget()
+
 
         # Configura a interface do usuário
         central_widget = QWidget()
@@ -48,7 +54,7 @@ class Historico(QMainWindow):
         tab_widget = QTabWidget()
 
         #Aumentando o tamanho das texto das abas
-        tab_widget.setStyleSheet("QTabBar::tab { height: 50px; font-size: 20px; }")
+        tab_widget.setStyleSheet("QTabBar::tab {{ height: 50px; font-size: {}px; }}".format(self.font_size))
         
         layout_transcricao_tab = self.area_transcricao()
 
@@ -60,51 +66,159 @@ class Historico(QMainWindow):
         # Adiciona o widget de abas ao layout
         layout.addWidget(tab_widget)
     
-    def preenchendo_tabela(self):
+    def preenchendo_tabela_is_conversion(self, is_conversion_bool):
+        # Lendo o arquivo csv
+        with open('src\config\historico.csv', 'r', encoding='utf-8') as file:
+            reader = csv.DictReader(file, delimiter='|')
+            dados = list(reader)
+
+        # Obtendo a data selecionada
+        if is_conversion_bool:
+            data_selecionada = self.combo_data_conversion.currentText()
+        else:
+            data_selecionada = self.combo_data.currentText()
+
+        # Limpando as tabelas
+        self.table.setRowCount(0)
+        self.table_conversion.setRowCount(0)
+
+        # Adicionando as transcrições e conversões às tabelas
+        for data in dados:
+            # Se a conversão não está vazia, então é uma conversão
+
+            if data['data'] == data_selecionada:
+                if is_conversion_bool:
+                    if data['conversion'] != '':  # Verifica se a conversão não está vazia
+                        self.add_row_to_table(self.table_conversion, [data['hora'], data['conversion']], True)
+                elif not is_conversion_bool:
+                    if data['transcricao'] != '':  # Verifica se a transcrição não está vazia
+                        self.add_row_to_table(self.table, [data['hora'], data['transcricao']], False)
+    
+    def add_row_to_table(self, table, row_data, is_conversion):
+        if not is_conversion:
+            row_count = table.rowCount()
+            table.setRowCount(row_count + 1)
+            for i, data in enumerate(row_data):
+                table.setItem(row_count, i, QTableWidgetItem(data))
+        else:
+            row_count = table.rowCount()
+            table.setRowCount(row_count + 1)
+            for i, data in enumerate(row_data):
+                table.setItem(row_count, i, QTableWidgetItem(data))
+            # Adicionando botão para adicionar anotação
+            btn = QPushButton('Reproduzir')
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.setStyleSheet('background-color: {}; color: {};padding: 10px; border: none; border-style: none;border-radius: 10px;{}; margin:10px'.format(COLOR_PRIMARY, COLOR_TERTIARY, self.font_size_constant))
+            btn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+            btn.clicked.connect(lambda: self.start_conversion_thread(row_data[1]))
+            table.setCellWidget(row_count, 2, btn)
+    def start_conversion_thread(self, text):
+        self.conversion_thread = ConvertendoTextoEmAudio(text)
+        self.conversion_thread.start()
+
+    def carregando_data_is_conversion(self, is_conversion_bool):
         # Lendo o arquivo csv
         with open('src\config\historico.csv', 'r', encoding='utf-8') as file:
             reader = csv.reader(file, delimiter='|')
             dados = list(reader)
-
-        # Obtendo a data selecionada
-        data_selecionada = self.combo_data.currentText()
-
-        # Criando um iterador para os dados
+    
         dados_iter = iter(dados)
-
-        # Ignorando o cabeçalho
-        next(dados_iter)
-
-        # Limpando a tabela
-        self.table.setRowCount(0)
-
-        # Adicionando as transcrições à tabela
+    
+        next(dados_iter)  # Ignorando o cabeçalho
+    
+        datas_unicas_transcription = set()
+        datas_unicas_conversion = set()
         for data in dados_iter:
-            if data[0] == data_selecionada:
-                row_count = self.table.rowCount()
-                self.table.setRowCount(row_count + 1)
-                self.table.setItem(row_count, 0, QTableWidgetItem(data[1]))
-                self.table.setItem(row_count, 1, QTableWidgetItem(data[2]))
-
-    def carregando_data(self):
-        #Lendo o arquivo csv
-        with open('src\config\historico.csv', 'r', encoding='utf-8') as file:
-            reader = csv.reader(file, delimiter='|')
-            dados = list(reader)
-
-        dados_iter = iter(dados)
-
-        next(dados_iter)
-        datas_unicas = set()
-        for data in dados_iter:
-        # Se a data ainda não foi adicionada, adicione-a
-            if data[0] not in datas_unicas:
-                self.combo_data.addItem(data[0])
-                datas_unicas.add(data[0])
+            # If the row has less than 4 elements, append empty strings until it has 4 elements
+            while len(data) < 4:
+                data.append('')
+    
+            # Se a conversão não está vazia, então é uma conversão
+            is_conversion = data[3] != ''
+    
+            # Se a data ainda não foi adicionada, adicione-a ao combo box apropriado
+            if not is_conversion_bool and not is_conversion:
+                if data[0] not in datas_unicas_transcription:
+                    self.combo_data.addItem(data[0])
+                    datas_unicas_transcription.add(data[0])
+            elif is_conversion_bool and is_conversion:
+                if data[0] not in datas_unicas_conversion:
+                    self.combo_data_conversion.addItem(data[0])
+                    datas_unicas_conversion.add(data[0])
 
     def area_conversion(self):
-        label_teste = QLabel('Teste')
-        return label_teste
+        # Cria novo layout para a aba de transcrição
+        layout_conversion_tab = QWidget()
+        layout_vertical_conversion = QVBoxLayout(layout_conversion_tab)
+        layout_vertical_conversion.setContentsMargins(10, 10, 10, 10)
+
+        #Criando layout para botões
+        layout_botoes_conversion = QHBoxLayout()
+
+        # Selecionando data
+        label_data_conversion = QLabel('Data:')
+        label_data_conversion.setStyleSheet(self.font_size_constant)
+        layout_botoes_conversion.addWidget(label_data_conversion)
+
+        # Caixa de seleção de data
+        self.combo_data_conversion = QComboBox()
+        self.combo_data_conversion.setStyleSheet(self.font_size_constant)
+        self.combo_data_conversion.addItem('Selecione uma data')
+        self.combo_data_conversion.setCurrentText('Selecione uma data')
+        layout_botoes_conversion.addWidget(self.combo_data_conversion)
+        self.carregando_data_is_conversion(True)
+        # Aciona o método de carregar transcrições
+        self.combo_data_conversion.currentIndexChanged.connect(lambda: self.preenchendo_tabela_is_conversion(True))
+
+        #Adicionando espaço entre os botões
+        layout_botoes_conversion.addStretch()
+
+        #Botão para exportar transcrições
+        btn_exportar_conversion = self.criando_botoes('Exportar Conversões', 'fa5s.file-export', 'white')
+        btn_exportar_conversion.clicked.connect(self.exportar_conversoes)
+        layout_botoes_conversion.addWidget(btn_exportar_conversion)
+
+        # Movendo os botões para a direita
+        layout_botoes_conversion.setAlignment(Qt.AlignmentFlag.AlignRight)
+
+        # Adiciona o layout de botões ao layout da aba de transcrição
+        layout_vertical_conversion.addLayout(layout_botoes_conversion)
+
+        #Criando um QTableWidget
+        self.table_conversion = QTableWidget()
+        self.table_conversion.setColumnCount(3)
+        self.table_conversion.setHorizontalHeaderLabels(['Hora', 'Conversão', 'Ação'])
+        self.table_conversion.horizontalHeader().setStretchLastSection(True)
+        self.table_conversion.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.table_conversion.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.table_conversion.verticalHeader().setVisible(False)
+        self.table_conversion.setAlternatingRowColors(True)
+        self.table_conversion.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table_conversion.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
+        self.table_conversion.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        css_style = """QTableView {{font-size: {}px;}} QHeaderView {{font-size: {}px;}}""".format(self.font_size, self.font_size+2)
+        self.table_conversion.setStyleSheet(css_style)
+
+        # Adiciona a tabela ao layout
+        layout_vertical_conversion.addWidget(self.table_conversion)
+
+
+        # Adiciona o campo de anotação
+        self.text_edit_conversion = QTextEdit()
+        self.text_edit_conversion.setPlaceholderText('Anotação')
+        self.text_edit_conversion.setStyleSheet(self.font_size_constant)
+        self.text_edit_conversion.hide()
+
+        layout_vertical_conversion.addWidget(self.text_edit_conversion)
+
+        # Adiciona o layout da aba de transcrição ao tab_widget
+        layout_conversion_tab.setLayout(layout_vertical_conversion)
+
+        return layout_conversion_tab
+    
+
+
+
 
     def area_transcricao(self):
 
@@ -118,19 +232,19 @@ class Historico(QMainWindow):
 
         # Selecionando data
         label_data = QLabel('Data:')
-        label_data.setStyleSheet(FONT_SIZE)
+        label_data.setStyleSheet(self.font_size_constant)
         layout_botoes.addWidget(label_data)
         
 
         # Caixa de seleção de data
         self.combo_data = QComboBox()
-        self.combo_data.setStyleSheet(FONT_SIZE)
+        self.combo_data.setStyleSheet(self.font_size_constant)
         self.combo_data.addItem('Selecione uma data')
         self.combo_data.setCurrentText('Selecione uma data')
         layout_botoes.addWidget(self.combo_data)
-        self.carregando_data()
+        self.carregando_data_is_conversion(False)
         # Aciona o método de carregar transcrições
-        self.combo_data.currentIndexChanged.connect(self.preenchendo_tabela)
+        self.combo_data.currentIndexChanged.connect(lambda: self.preenchendo_tabela_is_conversion(False))
 
         #Adicionando espaço entre os botões
         layout_botoes.addStretch()
@@ -153,7 +267,6 @@ class Historico(QMainWindow):
         layout_vertical_transcricao.addLayout(layout_botoes)
 
         #Criando um QTableWidget
-        self.table = QTableWidget()
         self.table.setColumnCount(2)
         self.table.setHorizontalHeaderLabels(['Hora', 'Transcrição'])
         self.table.horizontalHeader().setStretchLastSection(True)
@@ -166,14 +279,8 @@ class Historico(QMainWindow):
         self.table.setWordWrap(True)
         self.table.setWordWrap(True)
         self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.table.setStyleSheet("""
-            QTableView {
-                font-size: 16px;
-            }
-            QHeaderView {
-                font-size: 20px;
-            }
-        """)
+        css_style = """QTableView {{font-size: {}px;}} QHeaderView {{font-size: {}px;}}""".format(self.font_size, self.font_size+2)
+        self.table.setStyleSheet(css_style)
 
         # Adiciona a tabela ao layout
         layout_vertical_transcricao.addWidget(self.table)
@@ -188,7 +295,7 @@ class Historico(QMainWindow):
         # Adiciona o campo de anotação
         self.text_edit = QTextEdit()
         self.text_edit.setPlaceholderText('Anotação')
-        self.text_edit.setStyleSheet(FONT_SIZE)
+        self.text_edit.setStyleSheet(self.font_size_constant)
         self.text_edit.hide()
         layout_vertical_transcricao.addWidget(self.text_edit)
 
@@ -204,7 +311,7 @@ class Historico(QMainWindow):
         button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.setIcon(icon)
         button.setIconSize(QSize(18, 18))
-        button.setStyleSheet('background-color: {}; color: {}; padding: 10px; border: none; border-style: none;border-radius: 10px;{}'.format(COLOR_PRIMARY, COLOR_TERTIARY, FONT_SIZE))
+        button.setStyleSheet('background-color: {}; color: {}; padding: 10px; border: none; border-style: none;border-radius: 10px;{}'.format(COLOR_PRIMARY, COLOR_TERTIARY, self.font_size_constant))
         button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         return button
     
@@ -227,12 +334,48 @@ class Historico(QMainWindow):
 
                 # Criando um arquivo txt
                 # Determinando o nome do arquivo
-                nome_arquivo = f'{data_selecionada.replace("/", "_")}.txt'
+                nome_arquivo = f'{data_selecionada.replace("/", "_")}_transcricao.txt'
                 with open(nome_arquivo, 'w') as file:
                     # Adicionando as transcrições ao arquivo
                     for data in dados_iter:
                         if data[0] == data_selecionada:
-                            file.write(f'{data[1]}: {data[2]}\n')
+                            if data[2] != '':
+                                file.write(f'{data[1]}: {data[2]}\n')
+                # Mensagem de sucesso
+                QMessageBox.information(self, "Mensagem de Informação", f"Transcrições exportadas com sucesso para o arquivo {nome_arquivo}.", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+            
+            else:
+                #Mensagem de info Qt
+                QMessageBox.information(self, "Mensagem de Informação", "Selecione uma data para exportar as transcrições.", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", f"Erro ao exportar transcrições: {e}", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+    
+    def exportar_conversoes(self):
+        try:
+            # Lendo o arquivo csv
+            with open('src\config\historico.csv', 'r', encoding='utf-8') as file:
+                reader = csv.reader(file, delimiter='|')
+                dados = list(reader)
+
+            # Obtendo a data selecionada
+            data_selecionada = self.combo_data_conversion.currentText()
+
+            if data_selecionada != 'Selecione uma data':
+                # Criando um iterador para os dados
+                dados_iter = iter(dados)
+
+                # Ignorando o cabeçalho
+                next(dados_iter)
+
+                # Criando um arquivo txt
+                # Determinando o nome do arquivo
+                nome_arquivo = f'{data_selecionada.replace("/", "_")}_conversion.txt'
+                with open(nome_arquivo, 'w') as file:
+                    # Adicionando as transcrições ao arquivo
+                    for data in dados_iter:
+                        if data[0] == data_selecionada:
+                            if data[3] != '':
+                                file.write(f'{data[1]}: {data[3]}\n')
                 # Mensagem de sucesso
                 QMessageBox.information(self, "Mensagem de Informação", f"Transcrições exportadas com sucesso para o arquivo {nome_arquivo}.", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
             
@@ -262,7 +405,7 @@ class Historico(QMainWindow):
 
                 # Criando um arquivo txt
                 # Determinando o nome do arquivo
-                nome_arquivo = f'{data_selecionada.replace("/", "_")}.txt'
+                nome_arquivo = f'{data_selecionada.replace("/", "_")}_anotação_inteligente.txt'
 
                 # Unificando as transcrições
                 transcricoes = ''
@@ -292,14 +435,16 @@ class Historico(QMainWindow):
                 aviso = "Anotação inteligente gerada com o auxílio do GPT da OpenAI.\n\n"
                 self.text_edit.setPlainText(aviso + response.choices[0].message.content)
                 self.text_edit.show()
+                with open(nome_arquivo, 'w') as file:
+                    file.write(aviso + response.choices[0].message.content)
                 # Mensagem de sucesso
-                QMessageBox.information(self, "Mensagem de Informação", f"Transcrições exportadas com sucesso para o arquivo {nome_arquivo}.", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+                QMessageBox.information(self, "Mensagem de Informação", f"Anotação inteligente foi gerada com sucesso! {nome_arquivo}.", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
             
             else:
                 #Mensagem de info Qt
                 QMessageBox.information(self, "Mensagem de Informação", "Selecione uma data para exportar as transcrições.", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
         except Exception as e:
-            QMessageBox.critical(self, "Erro", f"Erro ao exportar transcrições: {e}", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+            QMessageBox.critical(self, "Erro", f"Erro ao exportar anotação: {e}", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
         finally:
             self.progress_bar.hide()
         

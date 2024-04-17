@@ -33,7 +33,7 @@ class Settings(QMainWindow):
         super().__init__()
         self.config_service = ConfigService()
         self.config = self.config_service.lendo_configuracoes()
-        font_size = self.config['font_size']
+        self.font_size = self.config['font_size']
 
         # Adicionado layout vertical
         layout = QVBoxLayout()
@@ -54,7 +54,7 @@ class Settings(QMainWindow):
         bloco = QTabWidget()
         fonte_tab = bloco.font()
         fonte_tab.setFamily("Segoe UI")
-        fonte_tab.setPointSize(14)
+        bloco.setStyleSheet("QTabBar::tab {{ height: 50px; font-size: {}px; }}".format(self.font_size))
         bloco.setFont(fonte_tab)
         tab_geral = QWidget()
         tab_audio = QWidget()
@@ -82,7 +82,7 @@ class Settings(QMainWindow):
 
         # Adicionando parametro de volume de áudio
         titulo_volume = QLabel('Volume de áudio')
-        titulo_volume.setStyleSheet(f'font-size: {font_size}px')
+        titulo_volume.setStyleSheet(f'font-size: {self.font_size}px')
         layout_geral.addWidget(titulo_volume, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adicionando deslizador de volume
@@ -98,13 +98,13 @@ class Settings(QMainWindow):
 
         #Número de volume
         self.label_volume = QLabel(str(self.deslizador_volume.value()) + '%')
-        self.label_volume.setStyleSheet(f'font-size: {font_size-4}px')
+        self.label_volume.setStyleSheet(f'font-size: {self.font_size-4}px')
         layout_volume.addWidget(self.label_volume)
         layout_geral.addLayout(layout_volume)
 
         # Adicionando parâmetro de tamanho de fonte
         titulo_fonte = QLabel('Tamanho da fonte')
-        titulo_fonte.setStyleSheet(f'font-size: {font_size}px')
+        titulo_fonte.setStyleSheet(f'font-size: {self.font_size}px')
         layout_geral.addWidget(titulo_fonte, alignment=Qt.AlignmentFlag.AlignTop)
         
         # Adicionando deslizador de tamanho de fonte
@@ -120,7 +120,7 @@ class Settings(QMainWindow):
         
         # Número de tamanho de fonte
         self.label_fonte = QLabel(str(self.deslizador_fonte.value()) + 'pt')
-        self.label_fonte.setStyleSheet(f'font-size: {font_size-4}px')
+        self.label_fonte.setStyleSheet(f'font-size: {self.font_size-4}px')
         layout_fonte.addWidget(self.label_fonte)
         layout_geral.addLayout(layout_fonte)
 
@@ -128,12 +128,12 @@ class Settings(QMainWindow):
 
         # Titulo do microfone
         titulo_microfone = QLabel('Dispositivo de entrada - Microfone')
-        titulo_microfone.setStyleSheet(f'font-size: {font_size}px')
+        titulo_microfone.setStyleSheet(f'font-size: {self.font_size}px')
         layout_audio.addWidget(titulo_microfone, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adicionado ComboBox
         self.combobox_microphone =  self.cria_combobox('drivers_microphone')
-        self.combobox_microphone.setStyleSheet(f'font-size: {font_size-4}px; font: segoe ui')
+        self.combobox_microphone.setStyleSheet(f'font-size: {self.font_size-4}px; font: segoe ui')
         layout_audio.addWidget(self.combobox_microphone, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Espaçador entre opções
@@ -142,12 +142,12 @@ class Settings(QMainWindow):
 
         # Titulo do audio
         titulo_audio = QLabel('Dispositivo de saída - Audio')
-        titulo_audio.setStyleSheet(f'font-size: {font_size}px')
+        titulo_audio.setStyleSheet(f'font-size: {self.font_size}px')
         layout_audio.addWidget(titulo_audio, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adicionado ComboBox
         self.combobox_audio =  self.cria_combobox('drivers_audio')
-        self.combobox_audio.setStyleSheet(f'font-size: {font_size-4}px; font: segoe ui')
+        self.combobox_audio.setStyleSheet(f'font-size: {self.font_size-4}px; font: segoe ui')
         layout_audio.addWidget(self.combobox_audio, alignment=Qt.AlignmentFlag.AlignTop)
         #layout.addLayout(layout_combobox)
 
@@ -155,7 +155,7 @@ class Settings(QMainWindow):
         titulo_token = QLabel('Token da OpenAI:')
 
         # Ajusta o estilo do título
-        titulo_token.setStyleSheet(f'font-size: {font_size}px')
+        titulo_token.setStyleSheet(f'font-size: {self.font_size}px')
 
         # Adiciona o título ao layout
         layout_token.addWidget(titulo_token, alignment=Qt.AlignmentFlag.AlignTop)
@@ -169,20 +169,33 @@ class Settings(QMainWindow):
         
         # Salvar o token da OpenAI
         self.token.textChanged.connect(lambda: self.config_service.salvando_configuracoes({'openai_api_key': self.token.text()}))
-        self.token.setStyleSheet(f'font-size: {font_size}px')
+        self.token.setStyleSheet(f'font-size: {self.font_size}px')
 
         # Adiciona o bloco de texto ao layout
         layout_token.addWidget(self.token, alignment=Qt.AlignmentFlag.AlignTop)
         #layout.addLayout(layout_token)
 
+        # Titulo de estilos de vozes
+        titulo_vozes = QLabel('Estilos de voz')
+        titulo_vozes.setStyleSheet(f'font-size: {self.font_size}px; margin-top: 20px; margin-bottom: 5px;')
+        layout_token.addWidget(titulo_vozes, alignment=Qt.AlignmentFlag.AlignTop)
+
+        # Adiciona a lista de estilos de vozes da TTS-HD da OpenAI
+        self.voices = QComboBox()
+        self.voices.addItems([ 'alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'])
+        self.voices.setCurrentText(self.config['style_voice'])
+        self.voices.currentIndexChanged.connect(lambda: self.config_service.salvando_configuracoes({'style_voice': self.voices.currentText()}))
+        self.voices.setStyleSheet(f'font-size: {self.font_size-2}px; font: segoe ui')
+        layout_token.addWidget(self.voices, alignment=Qt.AlignmentFlag.AlignTop)
+
         # Titulo de configurações de palavra-chave
         titulo_palavra_chave = QLabel('Configurações de palavra-chave')
-        titulo_palavra_chave.setStyleSheet(f'font-size: {font_size-4}px; margin-top: 20px; margin-bottom: 5px;')
+        titulo_palavra_chave.setStyleSheet(f'font-size: {self.font_size-4}px; margin-top: 20px; margin-bottom: 5px;')
         layout.addWidget(titulo_palavra_chave, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Abrir uma janela de palavra-chave
         abrir_janela_palavra_chave = QPushButton('Abrir janela de palavra-chave')
-        abrir_janela_palavra_chave.setStyleSheet(f'font-size: {font_size-4}px; font: segoe ui')
+        abrir_janela_palavra_chave.setStyleSheet(f'font-size: {self.font_size-4}px; font: segoe ui')
         abrir_janela_palavra_chave.clicked.connect(lambda: self.abrir_janela_palavra_chave())
         layout.addWidget(abrir_janela_palavra_chave, alignment=Qt.AlignmentFlag.AlignTop)
 
