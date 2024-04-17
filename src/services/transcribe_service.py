@@ -25,6 +25,26 @@ class TranscribeService(QObject):
         self.transcribe = False
         self.contador_transcricao = 0
         self.transcricao_original = ""
+        self.palavra_chave = self.process_csv()
+        self.lock = threading.Lock()
+        self.config_service = ConfigService()
+        #print(self.palavra_chave)
+
+    def process_csv(self):
+        """
+        Processa o arquivo csv de palavra_chave.
+
+        Este método processa o arquivo csv de palavra_chave e retorna uma lista de palavras-chave.
+        """
+        with open('src/config/palavra_chave.csv', 'r', encoding='utf-8') as file:
+            #desconsiderando cabeçalho
+            next(file)
+            lines = file.read().splitlines()
+
+        lista = ', '.join([word for line in lines for word in line.split(',')])
+        return lista
+
+
 
     def captando_audio_streaming(self, running):
             """
@@ -40,13 +60,10 @@ class TranscribeService(QObject):
             CHUNK = 1024
             FORMAT = pyaudio.paInt16
             CHANNELS = 1
-            RATE = 44100
-            RECORD_SECONDS = 5
+            RATE = 48000
+            RECORD_SECONDS = 6
             WAVE_OUTPUT_FILENAME1 = "output1.wav"
             WAVE_OUTPUT_FILENAME2 = "output2.wav"
-
-            # Inicializando o serviço de configuração
-            self.config_service = ConfigService()
 
             # Inicializando o PyAudio
             p = pyaudio.PyAudio()
@@ -126,7 +143,9 @@ class TranscribeService(QObject):
         audio_file = open(filename, "rb")
         transcription = client.audio.transcriptions.create(
             model="whisper-1", 
-            file=audio_file)
+            file=audio_file,
+            prompt=self.palavra_chave
+            )
         # Enviando a transcrição para o sinal de transcrição
         threading.Thread(target=self.envia_transcricao, args=(transcription.text, filename, client, data_hora_atual)).start()
         wf.close()
@@ -135,7 +154,7 @@ class TranscribeService(QObject):
 
         #print(texto)
 
-        system_prompt = "Corrige o texto e remove uma palavra se não fizer sentido ou adiciona uma palavra se fizer sentido pelo contexto."
+        system_prompt = "Corrige e melhore o texto especialmente em termos de palavra-chave.\n\nPalavras-chave: {}".format(self.palavra_chave)
         temperature = 0
 
         response = client.chat.completions.create(
@@ -157,29 +176,30 @@ class TranscribeService(QObject):
     def envia_transcricao(self, transcription, filename, client, data_hora_atual):
         """
         Envia a transcrição para o sinal de transcrição.
-
+    
         Args:
             transcription (str): A transcrição a ser enviada.
-
+    
         Returns:
             None
         """
         transcription = transcription.replace("...", " ")
         self.transcricao_original += transcription
-
-        if self.contador_transcricao == 5:
-            self.transcripton_signal.emit(transcription, False, "")
-            transcription = self.envia_openai_corrigir(self.transcricao_original, filename, client)
-            self.transcripton_signal.emit(transcription, True, self.transcricao_original)
-            threading.Thread(target=self.salva_historico, args=(transcription, data_hora_atual)).start()
-            self.transcricao_original = ""
-            self.contador_transcricao = 0
-        else:
-            self.transcripton_signal.emit(transcription, False, "")
-
-        self.contador_transcricao += 1
-        print(self.contador_transcricao)
-
+    
+        with self.lock:
+            if self.contador_transcricao == 5:
+                self.transcripton_signal.emit(transcription, False, "")
+                transcription = self.envia_openai_corrigir(self.transcricao_original, filename, client)
+                self.transcripton_signal.emit(transcription, True, self.transcricao_original)
+                threading.Thread(target=self.salva_historico, args=(transcription, data_hora_atual)).start()
+                self.transcricao_original = ""
+                self.contador_transcricao = 0
+            else:
+                self.transcripton_signal.emit(transcription, False, "")
+    
+            self.contador_transcricao += 1
+    
+        #print(self.contador_transcricao)
     def lendo_driver_select(self):
             """
             Método responsável por ler o arquivo de configuração e selecionar o driver de áudio.

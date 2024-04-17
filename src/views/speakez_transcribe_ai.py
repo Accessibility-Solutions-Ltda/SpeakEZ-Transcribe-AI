@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QMainWindow, QLabel, QPushButton, QVBoxLayout, QTextEdit, QWidget, QHBoxLayout, QSizePolicy, QProgressBar, QStackedWidget, QMessageBox
 from PyQt6.QtCore import QThread, QSize, Qt
+from PyQt6.QtGui import QTextCursor
 from services.conversion_service import ConvertendoTextoEmAudio
 from services.transcribe_service import TranscribeService
 from services.config_service import ConfigService
@@ -47,8 +48,7 @@ class SpeakezTranscribeAI(QMainWindow):
         super().__init__()
 
         # Inicializa o serviço de configuração
-        self.config_service = ConfigService()
-        self.config = self.config_service.lendo_configuracoes()
+        self.config = ConfigService().lendo_configuracoes()
         self.key = self.config['openai_api_key']
 
         # Cria uma instância do serviço de transcrição
@@ -272,6 +272,7 @@ class SpeakezTranscribeAI(QMainWindow):
             texto_atual = self.remover_html(texto_atual)
             texto_atualizado = texto_atual.replace(texto_a_remover, transcription)
             self.transcription_box.setHtml(f'<span style="color:black;">{texto_atualizado}</span>')
+            self.transcription_box.moveCursor(QTextCursor.End)
         elif not is_corrigido:
             self.transcription_box.append(f'<span style="color:#7d7d7d;">{transcription}</span>')
             

@@ -35,8 +35,11 @@ class ConfigService:
             # Criando seção config['openai_api_key']
             config = toml.load(open(PATH_CONFIG, 'r', encoding='utf-8'))
             config['openai_api_key'] = ''
+            config['volume_audio'] = 0.5
+            config['font_size'] = 18
             with open(PATH_CONFIG, 'w', encoding='utf-8') as file:
                 toml.dump(config, file)
+
         # Registrando drivers de áudio existentes
         self.registrando_drivers_audio()
 
@@ -47,7 +50,7 @@ class ConfigService:
                 pass
         except FileNotFoundError:
             with open('src/config/palavra_chave.csv', 'w') as file:
-                file.write('termo_original,termo_substituto\n')
+                file.write('termos\n')
                 #print('Arquivo de palavra chave criado.')
         
         #Criando csv de histórico

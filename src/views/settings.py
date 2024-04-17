@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QTabWidget, QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QHBoxLayout, QLineEdit, QPushButton, QSpacerItem
+from PyQt6.QtWidgets import QTabWidget, QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QHBoxLayout, QLineEdit, QPushButton, QSpacerItem, QSlider
 from PyQt6.QtCore import Qt
 from services.config_service import ConfigService
 from views.palavra_chave import PalavraChave
@@ -32,6 +32,8 @@ class Settings(QMainWindow):
         """
         super().__init__()
         self.config_service = ConfigService()
+        self.config = self.config_service.lendo_configuracoes()
+        font_size = self.config['font_size']
 
         # Adicionado layout vertical
         layout = QVBoxLayout()
@@ -54,10 +56,13 @@ class Settings(QMainWindow):
         fonte_tab.setFamily("Segoe UI")
         fonte_tab.setPointSize(14)
         bloco.setFont(fonte_tab)
+        tab_geral = QWidget()
         tab_audio = QWidget()
         tab_token = QWidget()
+        bloco.addTab(tab_geral,"Geral")
         bloco.addTab(tab_audio, "Gerenciamento de áudio")
         bloco.addTab(tab_token,"OpenAI")
+        
         layout.addWidget(bloco)
 
         #Criando QVBoxLayout para a aba de áudio
@@ -70,14 +75,65 @@ class Settings(QMainWindow):
         layout_token = QVBoxLayout(layout_openai_tab)
         layout_token.setContentsMargins(10,10,0,0)
 
+        #Criando QVBoxLayout para a aba de geral
+        layout_geral_tab = QWidget(parent=tab_geral)      
+        layout_geral = QVBoxLayout(layout_geral_tab)
+        layout_geral.setContentsMargins(10,10,0,0)
+
+        # Adicionando parametro de volume de áudio
+        titulo_volume = QLabel('Volume de áudio')
+        titulo_volume.setStyleSheet(f'font-size: {font_size}px')
+        layout_geral.addWidget(titulo_volume, alignment=Qt.AlignmentFlag.AlignTop)
+
+        # Adicionando deslizador de volume
+        #Layout de deslizador de volume
+        layout_volume = QHBoxLayout()
+        self.deslizador_volume = QSlider(Qt.Orientation.Horizontal)
+        self.deslizador_volume.setMinimum(0)
+        self.deslizador_volume.setMaximum(100)
+        self.deslizador_volume.setValue(int(round(self.config['volume_audio'] * 100, 2)))
+        self.deslizador_volume.valueChanged.connect(lambda: self.atualiza_configuracao(self.deslizador_volume, 'volume_audio', '%', self.label_volume))
+        self.deslizador_volume.setFixedSize(200, 20)
+        layout_volume.addWidget(self.deslizador_volume)
+
+        #Número de volume
+        self.label_volume = QLabel(str(self.deslizador_volume.value()) + '%')
+        self.label_volume.setStyleSheet(f'font-size: {font_size-4}px')
+        layout_volume.addWidget(self.label_volume)
+        layout_geral.addLayout(layout_volume)
+
+        # Adicionando parâmetro de tamanho de fonte
+        titulo_fonte = QLabel('Tamanho da fonte')
+        titulo_fonte.setStyleSheet(f'font-size: {font_size}px')
+        layout_geral.addWidget(titulo_fonte, alignment=Qt.AlignmentFlag.AlignTop)
+        
+        # Adicionando deslizador de tamanho de fonte
+        # Layout de deslizador de tamanho de fonte
+        layout_fonte = QHBoxLayout()
+        self.deslizador_fonte = QSlider(Qt.Orientation.Horizontal)
+        self.deslizador_fonte.setMinimum(10)  # mínimo tamanho de fonte
+        self.deslizador_fonte.setMaximum(32)  # máximo tamanho de fonte
+        self.deslizador_fonte.setValue(int(self.config['font_size']))
+        self.deslizador_fonte.valueChanged.connect(lambda: self.atualiza_configuracao(self.deslizador_fonte, 'font_size', 'pt', self.label_fonte))
+        self.deslizador_fonte.setFixedSize(200, 20)
+        layout_fonte.addWidget(self.deslizador_fonte)
+        
+        # Número de tamanho de fonte
+        self.label_fonte = QLabel(str(self.deslizador_fonte.value()) + 'pt')
+        self.label_fonte.setStyleSheet(f'font-size: {font_size-4}px')
+        layout_fonte.addWidget(self.label_fonte)
+        layout_geral.addLayout(layout_fonte)
+
+
+
         # Titulo do microfone
         titulo_microfone = QLabel('Dispositivo de entrada - Microfone')
-        titulo_microfone.setStyleSheet('font-size: 18px')
+        titulo_microfone.setStyleSheet(f'font-size: {font_size}px')
         layout_audio.addWidget(titulo_microfone, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adicionado ComboBox
         self.combobox_microphone =  self.cria_combobox('drivers_microphone')
-        self.combobox_microphone.setStyleSheet('font-size: 14px; font: segoe ui')
+        self.combobox_microphone.setStyleSheet(f'font-size: {font_size-4}px; font: segoe ui')
         layout_audio.addWidget(self.combobox_microphone, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Espaçador entre opções
@@ -86,12 +142,12 @@ class Settings(QMainWindow):
 
         # Titulo do audio
         titulo_audio = QLabel('Dispositivo de saída - Audio')
-        titulo_audio.setStyleSheet('font-size: 18px')
+        titulo_audio.setStyleSheet(f'font-size: {font_size}px')
         layout_audio.addWidget(titulo_audio, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Adicionado ComboBox
         self.combobox_audio =  self.cria_combobox('drivers_audio')
-        self.combobox_audio.setStyleSheet('font-size: 14px; font: segoe ui')
+        self.combobox_audio.setStyleSheet(f'font-size: {font_size-4}px; font: segoe ui')
         layout_audio.addWidget(self.combobox_audio, alignment=Qt.AlignmentFlag.AlignTop)
         #layout.addLayout(layout_combobox)
 
@@ -99,7 +155,7 @@ class Settings(QMainWindow):
         titulo_token = QLabel('Token da OpenAI:')
 
         # Ajusta o estilo do título
-        titulo_token.setStyleSheet('font-size: 18px;')
+        titulo_token.setStyleSheet(f'font-size: {font_size}px')
 
         # Adiciona o título ao layout
         layout_token.addWidget(titulo_token, alignment=Qt.AlignmentFlag.AlignTop)
@@ -113,7 +169,7 @@ class Settings(QMainWindow):
         
         # Salvar o token da OpenAI
         self.token.textChanged.connect(lambda: self.config_service.salvando_configuracoes({'openai_api_key': self.token.text()}))
-        self.token.setStyleSheet('font-size: 14px')
+        self.token.setStyleSheet(f'font-size: {font_size}px')
 
         # Adiciona o bloco de texto ao layout
         layout_token.addWidget(self.token, alignment=Qt.AlignmentFlag.AlignTop)
@@ -121,12 +177,12 @@ class Settings(QMainWindow):
 
         # Titulo de configurações de palavra-chave
         titulo_palavra_chave = QLabel('Configurações de palavra-chave')
-        titulo_palavra_chave.setStyleSheet('font-size: 20px; margin-top: 20px; margin-bottom: 5px;')
+        titulo_palavra_chave.setStyleSheet(f'font-size: {font_size-4}px; margin-top: 20px; margin-bottom: 5px;')
         layout.addWidget(titulo_palavra_chave, alignment=Qt.AlignmentFlag.AlignTop)
 
         # Abrir uma janela de palavra-chave
         abrir_janela_palavra_chave = QPushButton('Abrir janela de palavra-chave')
-        abrir_janela_palavra_chave.setStyleSheet("font: Segoe UI; font-size: 14px;")
+        abrir_janela_palavra_chave.setStyleSheet(f'font-size: {font_size-4}px; font: segoe ui')
         abrir_janela_palavra_chave.clicked.connect(lambda: self.abrir_janela_palavra_chave())
         layout.addWidget(abrir_janela_palavra_chave, alignment=Qt.AlignmentFlag.AlignTop)
 
@@ -206,4 +262,9 @@ class Settings(QMainWindow):
                 combobox.addItems(list(self.config[text_audio].values()))
                 combobox.currentIndexChanged.connect(lambda: self.selecionando_driver(text_audio))
                 return combobox
+    def atualiza_configuracao(self, deslizador, chave_config, sufixo, label):
+        valor = deslizador.value()
+        self.config_service.salvando_configuracoes({chave_config: valor})
+        label.setText(f"{valor}{sufixo}")
+
 

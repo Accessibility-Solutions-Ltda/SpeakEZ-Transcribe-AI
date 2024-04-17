@@ -1,5 +1,6 @@
 from PyQt6.QtCore import QThread
 from services.openai_client import OpenaiClient
+from services.config_service import ConfigService
 from openai import OpenAI
 import pygame
 import os
@@ -16,6 +17,7 @@ class ConvertendoTextoEmAudio(QThread):
     def __init__(self, text):
         super().__init__()
         self.text = text
+        self.config = ConfigService().lendo_configuracoes()
 
     def run(self):
         try:
@@ -44,6 +46,7 @@ class ConvertendoTextoEmAudio(QThread):
                 pygame.mixer.init()
 
             pygame.mixer.music.load(temp_audio_path)
+            pygame.mixer.music.set_volume(float(self.config['volume_audio']))
             pygame.mixer.music.play()
 
             # Aguarda a reprodução do áudio terminar

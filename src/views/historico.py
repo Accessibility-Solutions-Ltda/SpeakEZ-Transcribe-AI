@@ -7,6 +7,7 @@ import csv
 import threading
 
 from services.openai_client import OpenaiClient
+from services.config_service import ConfigService
 
 FONT_SIZE = 'font-size: 18px;'
 COLOR_PRIMARY = '#4d608c'
@@ -28,7 +29,7 @@ class Historico(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        super().__init__()
+        self.config_service = ConfigService()
 
         # Configura a interface do usuário
         central_widget = QWidget()

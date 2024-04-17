@@ -74,7 +74,7 @@ class Menu(QWidget):
         image_label = QLabel()
 
         # Carrega a imagem
-        pixmap = QPixmap('src\assets\icons\256x256.png')
+        pixmap = QPixmap(r'src\assets\icons\256x256.png')
 
         # Ajustando o tamanho da imagem
         pixmap = pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)

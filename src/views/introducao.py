@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QTabWidget, QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QHBoxLayout, QLineEdit, QPushButton, QSpacerItem
 from PyQt6.QtCore import Qt
+from services.config_service import ConfigService
 
 class Introducao(QMainWindow):
     """
@@ -16,6 +17,7 @@ class Introducao(QMainWindow):
     """
     def __init__(self):
         super().__init__()
+        self.config_service = ConfigService()
         # Adicionado layout vertical
         central_widget = QWidget()
         layout = QVBoxLayout(central_widget)
