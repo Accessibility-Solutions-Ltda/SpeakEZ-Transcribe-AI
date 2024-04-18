@@ -65,7 +65,6 @@ class Menu(QWidget):
 
         # Cria um QHBoxLayout para o widget da imagem
         h_layout = QHBoxLayout(image_widget)
-        layout.addLayout(h_layout)
 
         # Adiciona um espaçador no início do layout
         h_layout.addStretch()

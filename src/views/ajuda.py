@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QGridLayout, QHBoxLayout, QLineEdit, QPushButton
+from PyQt6.QtWidgets import QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QGridLayout, QHBoxLayout, QLineEdit, QPushButton, QFrame, QSpacerItem, QScrollArea
 from PyQt6.QtWidgets import QTabWidget, QMainWindow, QLabel, QComboBox, QWidget, QVBoxLayout, QSizePolicy, QHBoxLayout, QLineEdit, QSpacerItem
 from PyQt6.QtCore import Qt
 
@@ -42,12 +42,13 @@ class Ajuda(QMainWindow):
 
         # Adicionado layout vertical
         central_widget = QWidget()
+        central_widget.setMinimumSize(1280, 720)
         layout = QVBoxLayout(central_widget)
         self.setCentralWidget(central_widget)
         
         # Ajustando margens
         layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(0)
+        layout.setSpacing(10)  # Adiciona um espaçamento vertical de 10 pixels
 
         # Adicionado titulo
         titulo = QLabel('Ajuda')
@@ -82,6 +83,7 @@ class Ajuda(QMainWindow):
         # Botão liga/desliga
         self.add_label(layout_front, 'Ligado/Desligado: ', 0, 0, self.topico_style)
         self.add_label(layout_front, "Controla o recurso de transcrição automática da reunião. Quando o botão está na posição 'Ligado', o programa começa a transcrever todas as falas da reunião em tempo real. Ao mudar para 'Desligado', o programa para de transcrever, interrompendo o registro das conversas.", 0, 1, self.explic_style)
+
 
         # Botão corrigir
         self.add_label(layout_front, 'Corrigir: ', 1, 0, self.topico_style)
@@ -119,6 +121,7 @@ class Ajuda(QMainWindow):
         self.add_label(layout_config, 'Configurações da palavra-chave: ', 3, 0, self.topico_style)
         self.add_label(layout_config, ' falta esse ', 3, 1, self.explic_style)
 
+
     def create_layout(self, parent):
         widget = QWidget(parent=parent)
         layout = QGridLayout(widget)
@@ -127,6 +130,6 @@ class Ajuda(QMainWindow):
     
     def add_label(self, layout, text, row, column, style):
         label = QLabel(text)
-        label.setWordWrap(True)
+        label.setWordWrap(True)  # Habilita a quebra de linha
         label.setStyleSheet(style)
         layout.addWidget(label, row, column)
