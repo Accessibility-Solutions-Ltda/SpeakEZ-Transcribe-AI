@@ -187,11 +187,11 @@ class TranscribeService(QObject):
         self.transcricao_original += transcription
     
         with self.lock:
-            if self.contador_transcricao == 5:
+            if self.contador_transcricao == 3:
                 self.transcripton_signal.emit(transcription, False, "")
                 transcription = self.envia_openai_corrigir(self.transcricao_original, filename, client)
-                self.transcripton_signal.emit(transcription, True, self.transcricao_original)
                 threading.Thread(target=self.salva_historico, args=(transcription, data_hora_atual)).start()
+                self.transcripton_signal.emit(transcription, True, self.transcricao_original)
                 self.transcricao_original = ""
                 self.contador_transcricao = 0
             else:
@@ -226,6 +226,12 @@ class TranscribeService(QObject):
 
         Parâmetros: transcription (str): A transcrição a ser salva. data_hora_atual (float): A data e a hora da transcrição."""
         # Salvando a transcrição no arquivo csv de histórico
+
+        # Removendo quebras de linha da transcrição
+        transcription = transcription.replace('\n', ' ')
+        transcription = transcription.replace('\r', ' ')
+        transcription = transcription.replace('|', ' ')
+        transcription = transcription.replace('  ', ' ')
         with open('src/config/historico.csv', 'a', encoding='utf-8') as file:
             # data, hora, transcrição
             file.write(f"{data_hora_atual.date().strftime('%d/%m/%Y')}|{data_hora_atual.time().strftime('%H:%M:%S')}|{transcription}|\n")

@@ -1,0 +1,6 @@
+PyQt6
+toml
+pyaudio
+qtawesome
+openai
+pygame

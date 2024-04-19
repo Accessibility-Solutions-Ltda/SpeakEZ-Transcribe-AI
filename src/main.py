@@ -64,7 +64,7 @@ class Main(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
 
         # Tamanho mínimo da janela
-        self.setMinimumSize(1280, 720)
+        self.setMinimumSize(1024, 768)
 
         # Definir a largura máxima do menu
         self.menu.setMaximumWidth(300)

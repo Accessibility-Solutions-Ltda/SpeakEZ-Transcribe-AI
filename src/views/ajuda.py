@@ -42,7 +42,7 @@ class Ajuda(QMainWindow):
 
         # Adicionado layout vertical
         central_widget = QWidget()
-        central_widget.setMinimumSize(1280, 720)
+        central_widget.setMinimumSize(1024, 768)
         layout = QVBoxLayout(central_widget)
         self.setCentralWidget(central_widget)
         

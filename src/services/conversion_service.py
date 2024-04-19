@@ -70,6 +70,9 @@ class ConvertendoTextoEmAudio(QThread):
     def salvar_no_csv(self, text):
         data_hora_atual = datetime.datetime.now()
         text = text.replace('\n', ' ')
+        text = text.replace('\r', ' ')
+        text = text.replace('|', ' ')
+        text = text.replace('  ', ' ')
         with open('src/config/historico.csv', 'a', encoding='utf-8') as file:
             # data, hora, transcrição
             file.write(f"{data_hora_atual.date().strftime('%d/%m/%Y')}|{data_hora_atual.time().strftime('%H:%M:%S')}||{text}\n")
