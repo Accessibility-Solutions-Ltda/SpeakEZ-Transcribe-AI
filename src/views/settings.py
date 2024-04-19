@@ -277,7 +277,7 @@ class Settings(QMainWindow):
                 return combobox
     def atualiza_configuracao(self, deslizador, chave_config, sufixo, label):
         valor = deslizador.value()
-        self.config_service.salvando_configuracoes({chave_config: valor})
+        self.config_service.salvando_configuracoes({chave_config: valor/100})
         label.setText(f"{valor}{sufixo}")
 
 

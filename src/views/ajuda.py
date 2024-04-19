@@ -119,7 +119,7 @@ class Ajuda(QMainWindow):
 
         # Botão configurações da palavra-chave
         self.add_label(layout_config, 'Configurações da palavra-chave: ', 3, 0, self.topico_style)
-        self.add_label(layout_config, ' falta esse ', 3, 1, self.explic_style)
+        self.add_label(layout_config, 'Permite a adição de termos específicos para aumentar a precisão da transcrição. É opcional.', 3, 1, self.explic_style)
 
 
     def create_layout(self, parent):
